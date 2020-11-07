@@ -638,8 +638,13 @@ The following table provides the definitions of the various terms used in this U
 
 Term | Definition
 --------|------------------
+Private Tutor | A person that teaches students in a 1 to 1 manner.
+Student | A person that is being taught by a private tutor.
+Basic Details | Details such as name, year, academic level and school of a student.
+Administrative Details | Details such as class venue, class time, tuition fee, last payment date and other details
+Academic Details | Details such as questions, exam records and attendance records
 Detail | Any miscellaneous information regarding a student.
-Exam Record | A record of an exam detailing its name, date and the student's score.
+Exam Record | A record of an exam which includes its name, date and the student's score.
 
 ## 6. FAQ
 This section provides the answers to Frequently Asked Questions (FAQ) by users.
@@ -649,3 +654,10 @@ Install the app in the other computer and overwrite the empty data file it creat
 
 2. Do I have to manually save my data?<br>
 Reeve automatically saves data in the hard disk automatically after any command that changes the data. There is no need to save manually.
+
+3. I forgot what are the various commands and their format, where can I find the list of commands?<br>
+Simply enter the `help` command and you will be directed the list of commands.
+
+4. I accidentally deleted all my data, is there a way to recover my past data?<br>
+Unfortunately, **Reeve** currently does not support a backup feature and is unable to recover any deleted data. The backup feature will be coming soon. 
+In the meantime, we advice you to refrain from accidentally clearing all data, you could perhaps create a backup `json` from time to time. 
