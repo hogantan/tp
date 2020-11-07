@@ -1,24 +1,32 @@
 @startuml
+!include style.puml
+
 start
 :User executes solve question command;
 :Parses the command;
 if () then ([command is valid])
-    :SolveQuestionCommand is executed;
-        if () then ([student exists])
-            if () then ([question does not exist])
-                :Display invalid question error message;
-            else ([else])
-                :Create student copy;
-                :Create solved version of question;
-                :Set the student copy's question to the solved version;
-                :Replace student with modified copy;
-                :Display success message;
-            endif
-        else ([else])
-            :Display invalid student error message;
-        endif
-else ([command is invalid - missing or invalid arguments])
+    :Execute SolveQuestionCommand;
+    if () then ([student exists])
+        :Solve question from student <$rake>;
+    else ([else])
+        :Display invalid student error message;
+    endif
+else ([command is invalid])
     :Display parse error message;
 endif
 stop
+
+partition "Activity: Solve question from student" {
+    start
+    if () then ([question exists])
+        :Create student copy;
+        :Create solved version of question;
+        :Set the student copy's question to the solved version;
+        :Replace student with modified copy;
+        :Display success message;
+    else ([else])
+        :Display invalid question error message;
+    endif
+    stop
+}
 @enduml

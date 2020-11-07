@@ -14,8 +14,8 @@ import static seedu.address.testutil.StudentBuilder.DEFAULT_SOLUTION;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -25,12 +25,12 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.student.Student;
-import seedu.address.model.student.question.Question;
+import seedu.address.model.student.academic.question.Question;
 import seedu.address.testutil.StudentBuilder;
 
 public class DeleteQuestionCommandTest {
 
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
 
     @Test
     public void constructor_null_throwsNullPointerException() {
@@ -46,7 +46,7 @@ public class DeleteQuestionCommandTest {
 
     @Test
     public void execute_validIndicesUnsolved_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withQuestions(TEST_QUESTIONS).build();
         model.setStudent(asker, clone);
 
@@ -54,7 +54,7 @@ public class DeleteQuestionCommandTest {
         Question removed = clone.getQuestions().get(questionIndex.getZeroBased());
 
         Student expected = deleteQuestion(questionIndex, clone);
-        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expected);
 
         DeleteQuestionCommand command = new DeleteQuestionCommand(INDEX_FIRST_PERSON, questionIndex);
@@ -64,7 +64,7 @@ public class DeleteQuestionCommandTest {
 
     @Test
     public void execute_validIndicesSolved_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withSolved(DEFAULT_SOLUTION, TEST_QUESTIONS).build();
         model.setStudent(asker, clone);
 
@@ -72,7 +72,7 @@ public class DeleteQuestionCommandTest {
         Question removed = clone.getQuestions().get(questionIndex.getZeroBased());
 
         Student expected = deleteQuestion(questionIndex, clone);
-        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expected);
 
         DeleteQuestionCommand command = new DeleteQuestionCommand(INDEX_FIRST_PERSON, questionIndex);
@@ -84,15 +84,16 @@ public class DeleteQuestionCommandTest {
     public void execute_validIndicesFilteredList_success() {
         showPersonAtIndex(model, INDEX_FIRST_PERSON);
 
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withSolved(DEFAULT_SOLUTION, TEST_QUESTIONS).build();
         model.setStudent(asker, clone);
         Index questionIndex = Index.fromOneBased(2);
         Question removed = clone.getQuestions().get(questionIndex.getZeroBased());
 
         Student expected = deleteQuestion(questionIndex, clone);
-        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        Model expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expected);
+        showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
 
         DeleteQuestionCommand command = new DeleteQuestionCommand(INDEX_FIRST_PERSON, questionIndex);
         String expectedMessage = String.format(MESSAGE_SUCCESS, expected.getName(), removed);
@@ -101,7 +102,7 @@ public class DeleteQuestionCommandTest {
 
     @Test
     public void execute_invalidStudentUnfilteredList_throwsCommandException() {
-        Index outOfBounds = Index.fromZeroBased(model.getFilteredStudentList().size());
+        Index outOfBounds = Index.fromZeroBased(model.getSortedStudentList().size());
         Index question = Index.fromZeroBased(0);
         DeleteQuestionCommand invalidCommand = new DeleteQuestionCommand(outOfBounds, question);
         assertCommandFailure(invalidCommand, model, MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
@@ -118,7 +119,7 @@ public class DeleteQuestionCommandTest {
 
     @Test
     public void execute_invalidQuestionIndex_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withSolved(DEFAULT_SOLUTION, TEST_QUESTIONS).build();
         model.setStudent(asker, clone);
 
@@ -145,9 +146,9 @@ public class DeleteQuestionCommandTest {
     }
 
     private Student deleteQuestion(Index index, Student toCopy) {
-        List<Question> questions = new ArrayList<>(toCopy.getQuestions());
+        List<Question> questions = toCopy.getQuestions();
         questions.remove(index.getZeroBased());
-        return new Student(toCopy.getName(), toCopy.getPhone(), toCopy.getSchool(),
-                toCopy.getYear(), toCopy.getAdmin(), questions, toCopy.getExams());
+        return new Student(toCopy.getName(), toCopy.getPhone(), toCopy.getSchool(), toCopy.getYear(),
+                toCopy.getAdmin(), questions, toCopy.getExams(), toCopy.getAttendance());
     }
 }

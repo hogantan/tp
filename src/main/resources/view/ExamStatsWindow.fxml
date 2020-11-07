@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
+
+<?import javafx.scene.image.Image?>
+<fx:root title="ExamStats" type="Stage" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <icons>
+        <Image url="@/images/exam_stats_icon.png" />
+    </icons>
+    <scene>
+        <Scene>
+         <VBox>
+            <children>
+               <LineChart fx:id="lineChart" legendVisible="false" VBox.vgrow="NEVER">
+                 <xAxis>
+                   <CategoryAxis label=" Exam Date" />
+                 </xAxis>
+                 <yAxis>
+                   <NumberAxis label="Score Percentage (%)" side="LEFT" />
+                 </yAxis>
+               </LineChart>
+            </children>
+         </VBox>
+        </Scene>
+    </scene>
+</fx:root>

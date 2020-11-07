@@ -1,23 +1,33 @@
 @startuml
+!include style.puml
+
 start
 :User executes add question command;
 :Parses the command;
 if () then ([command is valid])
-    :AddQuestionCommand is executed;
-        if () then ([student exists])
-            if () then ([no duplicate question])
-                :Create student copy;
-                :Add question to student copy;
-                :Replace student with modified copy;
-                :Display success message;
-            else ([else])
-                :Display duplicate question error message;
-            endif
-        else ([else])
-            :Display invalid student error message;
-        endif
-else ([command is invalid - missing or invalid arguments])
+    :Execute AddQuestionCommand;
+    if () then ([student exists])
+        :Add question to student <$rake>;
+    else ([else])
+        :Display invalid student error message;
+    endif
+else ([else])
     :Display parse error message;
 endif
 stop
+
+
+partition "Activity: Add question to student" {
+    start
+    if () then ([else])
+        :Create student copy;
+        :Add question to student copy;
+        :Replace student with modified copy;
+        :Display success message;
+    else ([has duplicate question])
+        :Display duplicate question error message;
+    endif
+    stop
+}
+
 @enduml

@@ -1,0 +1,78 @@
+@startuml
+!include style.puml
+
+box Logic LOGIC_COLOR_T1
+participant ":MainWindow" as MainWindow LOGIC_COLOR
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":ReeveParser" as ReeveParser LOGIC_COLOR
+participant ":AddCommandParser" as AddCommandParser LOGIC_COLOR
+participant ":AddCommand" as AddCommand LOGIC_COLOR
+participant ":CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant ":Model" as Model MODEL_COLOR
+end box
+
+[-> MainWindow : executeCommand(input)
+activate MainWindow
+
+MainWindow -> LogicManager : execute(input)
+activate LogicManager
+
+LogicManager -> ReeveParser : parseCommand(input)
+activate ReeveParser
+
+create AddCommandParser
+ReeveParser -> AddCommandParser
+activate AddCommandParser
+AddCommandParser --> ReeveParser
+deactivate AddCommandParser
+
+ReeveParser -> AddCommandParser : parse(input)
+activate AddCommandParser
+create AddCommand
+AddCommandParser -> AddCommand
+activate AddCommand
+
+AddCommand --> AddCommandParser
+deactivate AddCommand
+
+AddCommandParser --> ReeveParser
+deactivate AddCommandParser
+AddCommandParser -[hidden]-> ReeveParser
+destroy AddCommandParser
+
+ReeveParser --> LogicManager
+deactivate ReeveParser
+
+LogicManager -> AddCommand : execute(model)
+activate AddCommand
+
+AddCommand -> Model : hasStudent(toAdd)
+activate Model
+
+Model --> AddCommand
+deactivate Model
+
+AddCommand -> Model : isClashingClassTime(toAdd)
+activate Model
+
+Model --> AddCommand
+deactivate Model
+
+AddCommand -> Model : addStudent(toAdd)
+
+create CommandResult
+AddCommand -> CommandResult
+activate CommandResult
+CommandResult --> AddCommand
+deactivate CommandResult
+
+AddCommand --> LogicManager : result
+deactivate AddCommand
+
+AddCommand -[hidden]-> LogicManager
+destroy AddCommand
+
+@enduml

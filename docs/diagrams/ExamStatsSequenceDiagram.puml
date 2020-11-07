@@ -1,0 +1,71 @@
+@startuml
+!include style.puml
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":ReeveParser" as ReeveParser LOGIC_COLOR
+participant ":ExamCommandParser" as ExamCommandParser LOGIC_COLOR
+participant "a:ExamStatsCommand" as ExamStatsCommand LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant ":Model" as Model MODEL_COLOR
+participant "sortedStudents:SortedList" as SortedList MODEL_COLOR
+end box
+
+[-> LogicManager : execute("exam stats 1")
+activate LogicManager
+
+LogicManager -> ReeveParser : parseCommand("exam stats 1")
+activate ReeveParser
+
+create ExamCommandParser
+ReeveParser -> ExamCommandParser
+activate ExamCommandParser
+
+ExamCommandParser --> ReeveParser
+deactivate ExamCommandParser
+
+ReeveParser -> ExamCommandParser : parse("stats 1")
+activate ExamCommandParser
+
+
+create ExamStatsCommand
+ExamCommandParser -> ExamStatsCommand
+activate ExamStatsCommand
+
+ExamStatsCommand --> ExamCommandParser : a
+deactivate ExamStatsCommand
+
+ExamCommandParser --> ReeveParser : a
+deactivate ExamCommandParser
+
+ExamCommandParser -[hidden]-> ReeveParser
+destroy ExamCommandParser
+
+ReeveParser --> LogicManager : a
+deactivate ReeveParser
+
+LogicManager -> ExamStatsCommand : execute()
+activate ExamStatsCommand
+
+ExamStatsCommand -> Model : getSortedStudentList()
+activate Model
+
+Model -> SortedList : get(1)
+activate SortedList
+
+SortedList -> Model
+deactivate SortedList
+
+Model -> ExamStatsCommand
+deactivate Model
+
+ExamStatsCommand --> LogicManager : result
+deactivate ExamStatsCommand
+
+ExamStatsCommand -[hidden]-> LogicManager
+destroy ExamStatsCommand
+
+[<-- LogicManager
+deactivate LogicManager
+@enduml

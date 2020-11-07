@@ -2,10 +2,11 @@ package seedu.address.model.student.admin;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.DateUtil.getInputFormat;
+import static seedu.address.commons.util.DateUtil.parseToDate;
+import static seedu.address.commons.util.DateUtil.print;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 /**
  * Represents the last time a Student paid his tuition fees.
@@ -13,14 +14,9 @@ import java.time.format.DateTimeParseException;
  */
 public class PaymentDate {
 
-    public static final String MESSAGE_CONSTRAINTS =
-            "Payment dates should be valid and in the form dd/mm/yy, and should not be blank";
-
-    public static final String VALIDATION_REGEX = "(\\d{1,2})(\\/)(\\d{1,2})(\\/)(\\d{2}|\\d{4})";
-
-    private static final DateTimeFormatter INPUT_DEF = DateTimeFormatter.ofPattern("d/M/yy");
-    private static final DateTimeFormatter INPUT_ALT = DateTimeFormatter.ofPattern("d/M/yyyy");
-    private static final DateTimeFormatter OUTPUT = DateTimeFormatter.ofPattern("dd MMM yyyy");
+    public static final String MESSAGE_CONSTRAINTS = "Payment dates should be a valid date in the form dd/mm/yy, "
+            + "should not be blank, "
+            + "and should not be future-dated";
 
     public final LocalDate lastPaid;
 
@@ -35,47 +31,24 @@ public class PaymentDate {
         this.lastPaid = parseToDate(lastPaid);
     }
 
-    /*
-     * The {@code String} has already been validated by {@link #isValidDate(String)}.
-     * We just have to find out which format it fits.
-     */
-    private LocalDate parseToDate(String lastPaid) {
-        try {
-            return LocalDate.parse(lastPaid, INPUT_DEF);
-        } catch (DateTimeParseException ignored) {
-            // date is in d/M/yyyy
-            return LocalDate.parse(lastPaid, INPUT_ALT);
-        }
-    }
-
     /**
      * Returns true if a given string is in the correct date format.
      */
     public static boolean isValidDate(String test) {
-        if (!test.matches(VALIDATION_REGEX)) {
+        try {
+            return !parseToDate(test).isAfter(LocalDate.now());
+        } catch (IllegalArgumentException e) {
             return false;
         }
-
-        LocalDate testDate = null;
-        for (DateTimeFormatter format : new DateTimeFormatter[] {INPUT_DEF, INPUT_ALT}) {
-            try {
-                testDate = LocalDate.parse(test, format);
-                break;
-            } catch (DateTimeParseException ignored) {
-                // does not match the DateTimeFormat, try the next
-            }
-        }
-
-        return testDate != null;
     }
 
-    public String convertPaymentDateToUserInputString() {
-        return this.lastPaid.format(INPUT_ALT);
+    public String getUserInputDate() {
+        return getInputFormat(lastPaid);
     }
 
     @Override
     public String toString() {
-        return lastPaid.format(OUTPUT);
+        return print(lastPaid);
     }
 
     @Override

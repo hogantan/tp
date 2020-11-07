@@ -9,7 +9,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TEXT;
 import static seedu.address.logic.parser.ReeveParser.BASIC_COMMAND_FORMAT;
 
 import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddQuestionCommand;
@@ -17,12 +16,12 @@ import seedu.address.logic.commands.DeleteQuestionCommand;
 import seedu.address.logic.commands.QuestionCommand;
 import seedu.address.logic.commands.SolveQuestionCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.student.question.UnsolvedQuestion;
+import seedu.address.model.student.academic.question.UnsolvedQuestion;
 
 /**
  * Parses input arguments and creates a QuestionCommand.
  */
-public class QuestionCommandParser implements Parser<QuestionCommand> {
+public class QuestionCommandParser extends PrefixDependentParser<QuestionCommand> {
 
     /**
      * Parses the given {@code String} in the context of a QuestionCommand
@@ -81,7 +80,7 @@ public class QuestionCommandParser implements Parser<QuestionCommand> {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(input, PREFIX_TEXT);
 
-        if (areRequiredPrefixesMissing(argMultimap, PREFIX_TEXT)) {
+        if (!areRequiredPrefixesPresent(argMultimap, PREFIX_TEXT)) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, MESSAGE_USAGE));
         }
 
@@ -95,7 +94,7 @@ public class QuestionCommandParser implements Parser<QuestionCommand> {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(input, COMMAND_PREFIXES);
 
-        if (areRequiredPrefixesMissing(argMultimap, COMMAND_PREFIXES)) {
+        if (!areRequiredPrefixesPresent(argMultimap, COMMAND_PREFIXES)) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, MESSAGE_USAGE));
         }
 
@@ -110,7 +109,7 @@ public class QuestionCommandParser implements Parser<QuestionCommand> {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(input, PREFIX_INDEX);
 
-        if (areRequiredPrefixesMissing(argMultimap, PREFIX_INDEX)) {
+        if (!areRequiredPrefixesPresent(argMultimap, PREFIX_INDEX)) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, MESSAGE_USAGE));
         }
 
@@ -118,10 +117,6 @@ public class QuestionCommandParser implements Parser<QuestionCommand> {
         Index questionIndex = getQuestionIndex(argMultimap);
 
         return new DeleteQuestionCommand(studentIndex, questionIndex);
-    }
-
-    private boolean areRequiredPrefixesMissing(ArgumentMultimap argumentMultimap, Prefix... prefixes) {
-        return !Stream.of(prefixes).allMatch(prefix -> argumentMultimap.getValue(prefix).isPresent());
     }
 
 }

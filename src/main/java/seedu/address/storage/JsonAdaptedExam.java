@@ -1,9 +1,12 @@
 package seedu.address.storage;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.commons.util.DateUtil;
 import seedu.address.model.student.academic.exam.Exam;
 import seedu.address.model.student.academic.exam.Score;
 
@@ -50,19 +53,28 @@ public class JsonAdaptedExam {
             throw new IllegalValueException(String.format(MISSING_EXAM_FIELD_MESSAGE_FORMAT,
                     "Exam Name"));
         }
+        if (!Exam.isValidExamName(examName)) {
+            throw new IllegalValueException(Exam.MESSAGE_CONSTRAINTS);
+        }
 
         if (examDate == null || examDate.isEmpty()) {
             throw new IllegalValueException(String.format(MISSING_EXAM_FIELD_MESSAGE_FORMAT,
                     "Exam Date"));
         }
-
-        if (!Exam.isValidDate(examDate)) {
+        if (!DateUtil.isValidDate(examDate)) {
             throw new IllegalValueException("Invalid date format");
         }
+        LocalDate modelDate = DateUtil.parseToDate(examDate);
 
+        if (score == null || score.isEmpty()) {
+            throw new IllegalValueException(String.format(MISSING_EXAM_FIELD_MESSAGE_FORMAT,
+                    "Exam Date"));
+        }
         if (!Score.isValidExamScore(score)) {
             throw new IllegalValueException(Score.MESSAGE_CONSTRAINTS);
         }
-        return new Exam(examName, examDate, new Score(score));
+        Score modelScore = new Score(score);
+
+        return new Exam(examName, modelDate, modelScore);
     }
 }

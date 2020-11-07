@@ -1,0 +1,22 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor MODEL_COLOR
+skinparam classBackgroundColor MODEL_COLOR
+
+Package Admin {
+Class Admin
+Class ClassVenue
+Class ClassTime
+Class Fee
+Class PaymentDate
+Class Details
+}
+
+Admin *--> ClassVenue
+Admin *--> ClassTime
+Admin *--> Fee
+Admin *--> PaymentDate
+Admin *--> "*" Details
+
+@enduml

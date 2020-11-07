@@ -1,0 +1,43 @@
+@startuml
+!include style.puml
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":ScheduleViewCommand" as ScheduleCommand LOGIC_COLOR
+participant ":CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant ":Model" as Model MODEL_COLOR
+participant ":SchedulePrefs" as SchedulePrefs MODEL_COLOR
+participant ":Scheduler" as Scheduler MODEL_COLOR
+end box
+
+LogicManager -> ScheduleCommand : execute(Model)
+activate ScheduleCommand
+
+ScheduleCommand -> Model : setViewDate(LocalDate)
+activate Model
+
+Model -> SchedulePrefs : setViewDate(LocalDate)
+
+ScheduleCommand -> Model : setViewMode(ScheduleViewMode)
+Model -> SchedulePrefs : setViewMode(ScheduleViewMode)
+
+ScheduleCommand -> Model : updateFilteredStudentList(Predicate)
+
+ScheduleCommand -> Model : updateClassTimesToEvent()
+Model -> Scheduler : mapClassTimesToLessonEvent(List<Student>)
+activate Scheduler
+
+Scheduler -> Scheduler : resetData(List<Event>)
+
+create CommandResult
+ScheduleCommand -> CommandResult
+activate CommandResult
+CommandResult --> ScheduleCommand : result
+deactivate CommandResult
+
+ScheduleCommand --> LogicManager : result
+
+@enduml

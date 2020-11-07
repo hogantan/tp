@@ -1,23 +1,33 @@
 @startuml
+!include style.puml
+
 start
 :User executes delete question command;
 :Parses the command;
 if () then ([command is valid])
-    :DeleteQuestionCommand is executed;
-        if () then ([student exists])
-            if () then ([question does not exist])
-                :Display invalid question error message;
-            else ([else])
-                :Create student copy;
-                :Delete question from student copy;
-                :Replace student with modified copy;
-                :Display success message;
-            endif
-        else ([else])
-            :Display invalid student error message;
-        endif
-else ([command is invalid - missing or invalid arguments])
+    :Execute DeleteQuestionCommand;
+    if () then ([student exists])
+        :Delete question from student <$rake>;
+
+    else ([else])
+        :Display invalid student error message;
+    endif
+else ([command is invalid])
     :Display parse error message;
 endif
 stop
+
+partition "Activitiy: Delete question from student" {
+start
+if () then ([question exists])
+    :Create student copy;
+    :Delete question from student copy;
+    :Replace student with modified copy;
+    :Display success message;
+else ([else])
+    :Display invalid question error message;
+endif
+stop
+}
+
 @enduml

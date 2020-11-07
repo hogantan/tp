@@ -1,0 +1,27 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor UI_COLOR_T4
+skinparam classBackgroundColor UI_COLOR
+
+abstract class "{abstract}\nCommand" {
+}
+
+abstract class "{abstract}\nExamCommand" {
+}
+
+class AddExamCommand {
+}
+
+class DeleteExamCommand {
+}
+
+class ExamStatsCommand {
+}
+
+AddExamCommand --up|> "{abstract}\nExamCommand"
+DeleteExamCommand --up|> "{abstract}\nExamCommand"
+ExamStatsCommand --up|> "{abstract}\nExamCommand"
+"{abstract}\nExamCommand" --up|> "{abstract}\nCommand"
+
+@enduml

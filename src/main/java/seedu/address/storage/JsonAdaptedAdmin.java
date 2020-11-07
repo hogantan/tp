@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.student.Student;
 import seedu.address.model.student.admin.Admin;
 import seedu.address.model.student.admin.ClassTime;
 import seedu.address.model.student.admin.ClassVenue;
@@ -37,7 +38,7 @@ public class JsonAdaptedAdmin {
                             @JsonProperty("classTime") String classTime,
                             @JsonProperty("fee") String fee,
                             @JsonProperty("paymentDate") String paymentDate,
-                            @JsonProperty("additionalDetails") List<JsonAdaptedDetail> additionalDetails) {
+                            @JsonProperty("details") List<JsonAdaptedDetail> additionalDetails) {
         this.classVenue = classVenue;
         this.classTime = classTime;
         this.fee = fee;
@@ -50,12 +51,12 @@ public class JsonAdaptedAdmin {
     /**
      * Converts a given {@code Admin} into this class for Jackson use.
      */
-    public JsonAdaptedAdmin(Admin source) {
-        this.classVenue = source.getClassVenue().toString();
-        this.classTime = source.getClassTime().convertClassTimeToUserInputString();
-        this.fee = source.getFee().convertFeeToUserInputString();
-        this.paymentDate = source.getPaymentDate().convertPaymentDateToUserInputString();
-        additionalDetails.addAll(source.getDetails().stream()
+    public JsonAdaptedAdmin(Student student) {
+        this.classVenue = student.getClassVenue().toString();
+        this.classTime = student.getClassTime().convertClassTimeToUserInputString();
+        this.fee = student.getFee().convertFeeToUserInputString();
+        this.paymentDate = student.getPaymentDate().getUserInputDate();
+        additionalDetails.addAll(student.getDetails().stream()
                 .map(JsonAdaptedDetail::new)
                 .collect(Collectors.toList()));
     }

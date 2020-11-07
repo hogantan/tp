@@ -12,13 +12,19 @@ public class OverdueFeePredicate implements Predicate<Student> {
 
     private final LocalDate currentDate;
 
+    /**
+     * Constructs a new OverdueFeePredicate.
+     */
     public OverdueFeePredicate() {
         currentDate = LocalDate.now();
     }
 
+    /**
+     * Returns true if the student's date of last payment is more than one month from the current date.
+     */
     @Override
     public boolean test(Student student) {
-        return currentDate.minusMonths(1)
-                .compareTo(student.getAdmin().getPaymentDate().lastPaid) > 0;
+        return student.getPaymentDate().lastPaid.isBefore(currentDate.minusMonths(1))
+                && student.getAdmin().getFee().amount > 0;
     }
 }

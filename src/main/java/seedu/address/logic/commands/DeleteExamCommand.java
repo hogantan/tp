@@ -3,7 +3,6 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EXAM_INDEX;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_STUDENTS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +23,12 @@ public class DeleteExamCommand extends ExamCommand {
 
     public static final String MESSAGE_USAGE = ExamCommand.COMMAND_WORD + " " + COMMAND_WORD
             + ": Deletes an exam from a student.\n\n"
-            + "Parameters: INDEX (must be a positive integer)"
+            + "Parameters: INDEX (must be a positive integer) "
             + PREFIX_EXAM_INDEX
-            + "EXAM_INDEX (must be a positive integer)\n"
+            + "EXAM_INDEX (must be a positive integer) \n\n"
             + "Example: "
             + ExamCommand.COMMAND_WORD
-            + COMMAND_WORD + " 2 "
+            + " " + COMMAND_WORD + " 2 "
             + PREFIX_EXAM_INDEX
             + "1";
 
@@ -52,7 +51,7 @@ public class DeleteExamCommand extends ExamCommand {
         assert(studentIndex != null && examIndex != null);
         requireNonNull(model);
 
-        List<Student> lastShownList = model.getFilteredStudentList();
+        List<Student> lastShownList = model.getSortedStudentList();
         if (studentIndex.getZeroBased() >= lastShownList.size()) {
             throw new CommandException(Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
         }
@@ -69,7 +68,6 @@ public class DeleteExamCommand extends ExamCommand {
         Student updatedStudent = super.updateStudentExam(studentToDeleteExam, exams);
 
         model.setStudent(studentToDeleteExam, updatedStudent);
-        model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
         return new CommandResult(String.format(MESSAGE_EXAM_DELETED_SUCCESS, updatedStudent.getName(), removedExam));
     }
 

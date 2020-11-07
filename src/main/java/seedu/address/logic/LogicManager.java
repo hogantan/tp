@@ -2,9 +2,11 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
 import javafx.collections.ObservableList;
+import jfxtras.icalendarfx.components.VEvent;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.Command;
@@ -14,6 +16,8 @@ import seedu.address.logic.parser.ReeveParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyReeve;
+import seedu.address.model.notes.ReadOnlyNotebook;
+import seedu.address.model.schedule.ScheduleViewMode;
 import seedu.address.model.student.Student;
 import seedu.address.storage.Storage;
 
@@ -47,6 +51,7 @@ public class LogicManager implements Logic {
 
         try {
             storage.saveAddressBook(model.getReeve());
+            storage.saveNotebook(model.getNotebook());
         } catch (IOException ioe) {
             throw new CommandException(FILE_OPS_ERROR_MESSAGE + ioe, ioe);
         }
@@ -60,8 +65,13 @@ public class LogicManager implements Logic {
     }
 
     @Override
+    public ReadOnlyNotebook getNotebook() {
+        return model.getNotebook();
+    }
+
+    @Override
     public ObservableList<Student> getFilteredPersonList() {
-        return model.getFilteredStudentList();
+        return model.getSortedStudentList();
     }
 
     @Override
@@ -82,5 +92,20 @@ public class LogicManager implements Logic {
     @Override
     public void setGuiSettings(GuiSettings guiSettings) {
         model.setGuiSettings(guiSettings);
+    }
+
+    @Override
+    public LocalDateTime getScheduleViewDateTime() {
+        return model.getScheduleViewDateTime();
+    }
+
+    @Override
+    public ScheduleViewMode getScheduleViewMode() {
+        return model.getScheduleViewMode();
+    }
+
+    @Override
+    public ObservableList<VEvent> getVEventList() {
+        return model.getLessonEventsList();
     }
 }

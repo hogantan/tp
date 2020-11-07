@@ -3,9 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_INDEX;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_STUDENTS;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +19,7 @@ public class DeleteDetailCommand extends DetailCommand {
 
     public static final String COMMAND_WORD = "delete";
     public static final String MESSAGE_USAGE = DetailCommand.COMMAND_WORD + " " + COMMAND_WORD
-            + ": deletes an Additional Detail in the student identified"
+            + ": deletes a Detail in the student identified"
             + " by the index number used in the displayed student list. \n"
             + "Parameters: STUDENT_INDEX (must be a positive integer) "
             + PREFIX_INDEX + "DETAIL_INDEX (must be a positive integer)\n"
@@ -31,7 +29,7 @@ public class DeleteDetailCommand extends DetailCommand {
     public static final String MESSAGE_SUCCESS = "Detail removed from %s: %s";
     public static final String MESSAGE_BAD_DETAIL_INDEX = "There is no detail at this index";
 
-    private static Logger logger = Logger.getLogger("Delete Additional Detail Log");
+    private static Logger logger = Logger.getLogger("Delete Detail Log");
 
     private final Index studentIndex;
     private final Index detailIndex;
@@ -60,25 +58,25 @@ public class DeleteDetailCommand extends DetailCommand {
         requireNonNull(model);
         logger.log(Level.INFO, "Beginning command execution");
 
-        List<Student> lastShownList = model.getFilteredStudentList();
+        List<Student> lastShownList = model.getSortedStudentList();
         if (studentIndex.getZeroBased() >= lastShownList.size()) {
             logger.log(Level.WARNING, "Invalid student index input error");
             throw new CommandException(Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
         }
 
-        Student studentToAddDetail = lastShownList.get(studentIndex.getZeroBased());
-        if (detailIndex.getZeroBased() >= studentToAddDetail.getDetails().size()) {
+        Student studentToDeleteDetail = lastShownList.get(studentIndex.getZeroBased());
+        if (detailIndex.getZeroBased() >= studentToDeleteDetail.getDetails().size()) {
             logger.log(Level.WARNING, "Invalid detail index input error");
             throw new CommandException(MESSAGE_BAD_DETAIL_INDEX);
         }
 
-        List<Detail> details = new ArrayList<>(studentToAddDetail.getDetails());
+        List<Detail> details = studentToDeleteDetail.getDetails();
         Detail removedDetail = details.remove(detailIndex.getZeroBased());
 
-        Student updatedStudent = super.updateStudentDetail(studentToAddDetail, details);
+        Student updatedStudent = super.updateStudentDetail(studentToDeleteDetail, details);
 
-        model.setStudent(studentToAddDetail, updatedStudent);
-        model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
+        model.setStudent(studentToDeleteDetail, updatedStudent);
+
         logger.log(Level.INFO, "Execution complete");
         return new CommandResult(String.format(MESSAGE_SUCCESS, updatedStudent.getName(), removedDetail));
     }

@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.commands.CommandTestUtil.ATTENDANCE_DATE_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.ATTENDANCE_DATE_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_ATTENDANCE_FEEDBACK_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_BOB;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_LEVEL_BOB;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_TYPE_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_YEAR_BOB;
 import static seedu.address.testutil.StudentBuilder.DEFAULT_QUESTION_MATH;
 import static seedu.address.testutil.StudentBuilder.DEFAULT_SOLUTION;
 import static seedu.address.testutil.TypicalStudents.ALICE;
@@ -16,8 +18,10 @@ import static seedu.address.testutil.TypicalStudents.BOB;
 
 import org.junit.jupiter.api.Test;
 
-import seedu.address.model.student.question.SolvedQuestion;
-import seedu.address.model.student.question.UnsolvedQuestion;
+import seedu.address.model.student.academic.Attendance;
+import seedu.address.model.student.academic.Feedback;
+import seedu.address.model.student.academic.question.SolvedQuestion;
+import seedu.address.model.student.academic.question.UnsolvedQuestion;
 import seedu.address.testutil.StudentBuilder;
 
 public class StudentTest {
@@ -32,7 +36,7 @@ public class StudentTest {
 
         // different phone and school and year -> returns false
         Student editedAlice = new StudentBuilder(ALICE).withPhone(VALID_PHONE_BOB).withSchool(VALID_SCHOOL_BOB)
-                .withYear(VALID_SCHOOL_TYPE_BOB, VALID_SCHOOL_LEVEL_BOB).build();
+                .withYear(VALID_YEAR_BOB).build();
         assertFalse(ALICE.isSameStudent(editedAlice));
 
         // different name -> returns false
@@ -41,12 +45,12 @@ public class StudentTest {
 
         // same name, same phone, different attributes -> returns false
         editedAlice = new StudentBuilder(ALICE).withSchool(VALID_SCHOOL_BOB)
-                .withYear(VALID_SCHOOL_TYPE_BOB, VALID_SCHOOL_LEVEL_BOB).build();
+                .withYear(VALID_YEAR_BOB).build();
         assertFalse(ALICE.isSameStudent(editedAlice));
 
         // same name, same school, different attributes -> returns true
         editedAlice = new StudentBuilder(ALICE).withPhone(VALID_PHONE_BOB)
-                .withYear(VALID_SCHOOL_TYPE_BOB, VALID_SCHOOL_LEVEL_BOB).build();
+                .withYear(VALID_YEAR_BOB).build();
         assertFalse(ALICE.isSameStudent(editedAlice));
 
         // same name, same year, different attributes -> returns true
@@ -55,7 +59,7 @@ public class StudentTest {
         assertFalse(ALICE.isSameStudent(editedAlice));
 
         // same name, same phone, same school, different year -> returns true
-        editedAlice = new StudentBuilder(ALICE).withYear(VALID_SCHOOL_TYPE_BOB, VALID_SCHOOL_LEVEL_BOB).build();
+        editedAlice = new StudentBuilder(ALICE).withYear(VALID_YEAR_BOB).build();
         assertFalse(ALICE.isSameStudent(editedAlice));
     }
 
@@ -90,7 +94,7 @@ public class StudentTest {
         assertFalse(ALICE.equals(editedAlice));
 
         // different year -> returns false
-        editedAlice = new StudentBuilder(ALICE).withYear(VALID_SCHOOL_TYPE_BOB, VALID_SCHOOL_LEVEL_BOB).build();
+        editedAlice = new StudentBuilder(ALICE).withYear(VALID_YEAR_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
 
     }
@@ -142,6 +146,37 @@ public class StudentTest {
         newAlice = editedAlice.deleteQuestion(new SolvedQuestion(DEFAULT_QUESTION_MATH, DEFAULT_SOLUTION));
         assertNotEquals(editedAlice, newAlice);
         assertEquals(expected, newAlice);
+    }
+
+    @Test
+    public void containsAttendance() {
+        Feedback amyFeedback = new Feedback(VALID_ATTENDANCE_FEEDBACK_AMY);
+        Attendance standard = new Attendance(ATTENDANCE_DATE_AMY, true, amyFeedback);
+        Student aliceAcademic = new StudentBuilder(ALICE).withAttendances(standard).build();
+        assertTrue(aliceAcademic.containsAttendance(standard));
+
+        Attendance test = new Attendance(ATTENDANCE_DATE_AMY, false, amyFeedback);
+        assertTrue(aliceAcademic.containsAttendance(test));
+
+        test = new Attendance(ATTENDANCE_DATE_AMY, true);
+        assertTrue(aliceAcademic.containsAttendance(test));
+
+        test = new Attendance(ATTENDANCE_DATE_BOB, true, amyFeedback);
+        assertFalse(aliceAcademic.containsAttendance(test));
+    }
+
+    @Test
+    public void hasClashingClassTimeWith() {
+        // same class time
+        assertTrue(ALICE.hasClashingClassTimeWith(ALICE));
+
+        // clashes
+        Student test = new StudentBuilder(ALICE).withClassTime("5 1530-1800").build();
+        assertTrue(ALICE.hasClashingClassTimeWith(test));
+
+        // does not clash
+        test = new StudentBuilder(ALICE).withClassTime("3 1400-1500").build();
+        assertFalse(ALICE.hasClashingClassTimeWith(test));
     }
 
 }

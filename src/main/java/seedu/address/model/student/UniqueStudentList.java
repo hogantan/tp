@@ -98,6 +98,13 @@ public class UniqueStudentList implements Iterable<Student> {
     }
 
     /**
+     * Returns true if the student to be added has a class time that clashes with the other students.
+     */
+    public boolean hasClashingClassTimeWith(Student test) {
+        return internalList.stream().anyMatch(test::hasClashingClassTimeWith);
+    }
+
+    /**
      * Returns the backing list as an unmodifiable {@code ObservableList}.
      */
     public ObservableList<Student> asUnmodifiableObservableList() {

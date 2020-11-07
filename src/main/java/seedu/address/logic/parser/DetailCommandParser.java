@@ -8,7 +8,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TEXT;
 import static seedu.address.logic.parser.ReeveParser.BASIC_COMMAND_FORMAT;
 
 import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddDetailCommand;
@@ -18,7 +17,7 @@ import seedu.address.logic.commands.EditDetailCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.student.admin.Detail;
 
-public class DetailCommandParser implements Parser<DetailCommand> {
+public class DetailCommandParser extends PrefixDependentParser<DetailCommand> {
 
     /**
      * Parses user input into command for execution.
@@ -72,7 +71,7 @@ public class DetailCommandParser implements Parser<DetailCommand> {
                     AddDetailCommand.MESSAGE_USAGE), pe);
         }
 
-        Detail detail = ParserUtil.parseAdditionalDetail(argMultimap
+        Detail detail = ParserUtil.parseDetail(argMultimap
                 .getValue(PREFIX_TEXT).get());
 
         return new AddDetailCommand(index, detail);
@@ -119,14 +118,10 @@ public class DetailCommandParser implements Parser<DetailCommand> {
                     EditDetailCommand.MESSAGE_USAGE), pe);
         }
 
-        Detail detail = ParserUtil.parseAdditionalDetail(argMultimap
+        Detail detail = ParserUtil.parseDetail(argMultimap
                 .getValue(PREFIX_TEXT).get());
 
         return new EditDetailCommand(studentIndex, detailIndex, detail);
-    }
-
-    private boolean areRequiredPrefixesPresent(ArgumentMultimap argumentMultimap, Prefix... prefixes) {
-        return Stream.of(prefixes).allMatch(prefix -> argumentMultimap.getValue(prefix).isPresent());
     }
     //@@author
 

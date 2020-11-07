@@ -163,6 +163,24 @@ public class UniqueStudentListTest {
     }
 
     @Test
+    public void isClashingClassTime() {
+        // one student
+        uniqueStudentList.setStudents(Collections.singletonList(ALICE));
+        assertTrue(uniqueStudentList.hasClashingClassTimeWith(ALICE)); // same class time -> clashes
+        Student test = new StudentBuilder(BOB).withClassTime("5 1600-1800").build();
+        assertTrue(uniqueStudentList.hasClashingClassTimeWith(test)); // clashes
+        assertFalse(uniqueStudentList.hasClashingClassTimeWith(BOB)); // does not clash
+
+        // multiple students
+        uniqueStudentList.setStudents(Arrays.asList(ALICE, BOB));
+        assertTrue(uniqueStudentList.hasClashingClassTimeWith(ALICE)); // contains student
+        assertTrue(uniqueStudentList.hasClashingClassTimeWith(BOB)); // contains student
+        assertTrue(uniqueStudentList.hasClashingClassTimeWith(test)); // clashes with ALICE
+        test = new StudentBuilder(BOB).withClassTime("3 1200-1230").build();
+        assertFalse(uniqueStudentList.hasClashingClassTimeWith(test)); // does not clash
+    }
+
+    @Test
     public void asUnmodifiableObservableList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, ()
             -> uniqueStudentList.asUnmodifiableObservableList().remove(0));

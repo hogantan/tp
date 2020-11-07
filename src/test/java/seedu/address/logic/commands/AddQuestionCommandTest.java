@@ -14,6 +14,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalStudents.ALICE;
 import static seedu.address.testutil.TypicalStudents.BENSON;
 import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +23,14 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.student.Student;
-import seedu.address.model.student.question.UnsolvedQuestion;
+import seedu.address.model.student.academic.question.UnsolvedQuestion;
 import seedu.address.testutil.StudentBuilder;
 
 public class AddQuestionCommandTest {
 
     private static final String TEST_QUESTION = "What is 1 + 1?";
 
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
 
     @Test
     public void constructor_null_throwsNullPointerException() {
@@ -46,7 +47,7 @@ public class AddQuestionCommandTest {
 
     @Test
     public void execute_validIndexUnfilteredList_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withQuestions().build();
         UnsolvedQuestion question = new UnsolvedQuestion(TEST_QUESTION);
         AddQuestionCommand addQuestionCommand = new AddQuestionCommand(INDEX_FIRST_PERSON, question);
@@ -56,7 +57,7 @@ public class AddQuestionCommandTest {
         String expectedMessage = String.format(AddQuestionCommand.MESSAGE_SUCCESS,
                 clone.getName(), question);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expectedStudent);
 
         assertCommandSuccess(addQuestionCommand, model, expectedMessage, expectedModel);
@@ -64,7 +65,7 @@ public class AddQuestionCommandTest {
 
     @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() {
-        Index outOfBounds = Index.fromOneBased(model.getFilteredStudentList().size() + 1);
+        Index outOfBounds = Index.fromOneBased(model.getSortedStudentList().size() + 1);
         UnsolvedQuestion question = new UnsolvedQuestion(TEST_QUESTION);
         AddQuestionCommand invalidCommand = new AddQuestionCommand(outOfBounds, question);
 
@@ -74,7 +75,7 @@ public class AddQuestionCommandTest {
     @Test
     public void execute_unsolvedQuestionAlreadyExists_throwsCommandException() {
         Student asker = new StudentBuilder(ALICE).withQuestions(TEST_QUESTION).build();
-        model.setStudent(model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased()), asker);
+        model.setStudent(model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased()), asker);
 
         AddQuestionCommand invalidCommand = new AddQuestionCommand(INDEX_FIRST_PERSON,
                 new UnsolvedQuestion(TEST_QUESTION));
@@ -85,7 +86,7 @@ public class AddQuestionCommandTest {
     @Test
     public void execute_solvedQuestionAlreadyExists_throwsCommandException() {
         Student asker = new StudentBuilder(ALICE).withSolved(DEFAULT_SOLUTION, TEST_QUESTION).build();
-        model.setStudent(model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased()), asker);
+        model.setStudent(model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased()), asker);
 
         AddQuestionCommand invalidCommand = new AddQuestionCommand(INDEX_FIRST_PERSON,
                 new UnsolvedQuestion(TEST_QUESTION));
@@ -97,7 +98,7 @@ public class AddQuestionCommandTest {
     public void execute_validIndexFilteredList_success() {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         UnsolvedQuestion question = new UnsolvedQuestion(TEST_QUESTION);
         Student clone = new StudentBuilder(asker).withQuestions().build();
         model.setStudent(asker, clone);
@@ -108,8 +109,9 @@ public class AddQuestionCommandTest {
         String expectedMessage = String.format(AddQuestionCommand.MESSAGE_SUCCESS,
                 expectedStudent.getName(), question);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expectedStudent);
+        showPersonAtIndex(expectedModel, INDEX_SECOND_PERSON);
 
         assertCommandSuccess(addQuestionCommand, model, expectedMessage, expectedModel);
 

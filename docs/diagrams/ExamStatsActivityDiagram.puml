@@ -1,0 +1,18 @@
+@startuml
+start
+:User executes exam stats command;
+:Parses the command;
+if () then ([command is valid])
+    :Exam stats command is executed;
+    if() then ([student index exceeds student list])
+        :Display index out of bounds error message;
+    else ([student index within student list])
+        :Get student from student list;
+        :Get exams from student;
+        :Display exam statistics window of student;
+    endif
+else ([command is invalid - missing or invalid arguments])
+    :Display parse error message;
+endif
+stop
+@enduml

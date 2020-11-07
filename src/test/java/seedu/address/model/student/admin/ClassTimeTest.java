@@ -84,6 +84,37 @@ public class ClassTimeTest {
     }
 
     @Test
+    public void clashesWith() {
+        // same class time -> true
+        ClassTime classTime = new ClassTime("5 1500-1700");
+        assertTrue(classTime.clashesWith(classTime));
+
+        // end after classTime start -> true
+        ClassTime test = new ClassTime("5 1400-1501");
+        assertTrue(classTime.clashesWith(test));
+
+        // start before classTime end -> true
+        test = new ClassTime("5 1659-1800");
+        assertTrue(classTime.clashesWith(test));
+
+        // complete overlap -> true
+        test = new ClassTime("5 1459-1701");
+        assertTrue(classTime.clashesWith(test));
+
+        // different day -> false
+        test = new ClassTime("3 1500-1700");
+        assertFalse(classTime.clashesWith(test));
+
+        // end just as classTime start
+        test = new ClassTime("5 1400-1500");
+        assertFalse(classTime.clashesWith(test));
+
+        // start just as classTime end
+        test = new ClassTime("5 1700-1800");
+        assertFalse(classTime.clashesWith(test));
+    }
+
+    @Test
     public void compareTo() {
         ClassTime time = new ClassTime("2 1500-1700");
         ClassTime laterDayOfWeek = new ClassTime("3 1500-1700");

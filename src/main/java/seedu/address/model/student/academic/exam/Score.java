@@ -13,6 +13,8 @@ public class Score {
             "Scores should be in the form x/y, where x and y are both whole numbers and x is less than "
                     + "or equal to y";
 
+    public final double marksObtained;
+    public final double totalMarks;
     public final String examScore;
 
     /**
@@ -23,7 +25,10 @@ public class Score {
     public Score(String score) {
         requireNonNull(score);
         checkArgument(isValidExamScore(score), MESSAGE_CONSTRAINTS);
-        examScore = score;
+        String[] splitScore = score.split("/");
+        marksObtained = Double.parseDouble(splitScore[0]);
+        totalMarks = Double.parseDouble(splitScore[1]);
+        examScore = marksObtained + "/" + totalMarks;
     }
 
     /**
@@ -36,21 +41,21 @@ public class Score {
             return false;
         }
 
-        int firstInt;
-        int secInt;
+        double marksObtained;
+        double totalMarks;
 
         try {
-            firstInt = Integer.parseInt(splitScore[0]);
-            secInt = Integer.parseInt(splitScore[1]);
+            marksObtained = Double.parseDouble(splitScore[0]);
+            totalMarks = Double.parseDouble(splitScore[1]);
         } catch (NumberFormatException e) {
             return false;
         }
 
-        if (firstInt < 0 || secInt < 0) {
+        if (marksObtained < 0 || totalMarks < 0) {
             return false;
         }
 
-        return firstInt <= secInt;
+        return marksObtained <= totalMarks;
     }
 
     /**
@@ -58,12 +63,7 @@ public class Score {
      * @return score in terms of percentage.
      */
     public double getScorePercentage() {
-        String[] splitScore = examScore.split("/");
-
-        double firstInt = Double.parseDouble(splitScore[0]);
-        double secondInt = Double.parseDouble(splitScore[1]);
-
-        return Math.round((firstInt / secondInt) * 1000) / 10.0;
+        return Math.round((marksObtained / totalMarks) * 1000) / 10.0;
     }
 
     @Override

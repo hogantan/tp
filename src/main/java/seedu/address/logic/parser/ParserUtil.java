@@ -1,32 +1,36 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.commons.util.DateUtil;
 import seedu.address.commons.util.StringUtil;
-import seedu.address.logic.commands.AddExamCommand;
+import seedu.address.logic.commands.ScheduleViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.notes.note.Description;
+import seedu.address.model.notes.note.Title;
+import seedu.address.model.schedule.ScheduleViewMode;
 import seedu.address.model.student.Name;
 import seedu.address.model.student.Phone;
 import seedu.address.model.student.School;
-import seedu.address.model.student.SchoolType;
 import seedu.address.model.student.Year;
+import seedu.address.model.student.academic.Attendance;
+import seedu.address.model.student.academic.Feedback;
 import seedu.address.model.student.academic.exam.Exam;
 import seedu.address.model.student.academic.exam.Score;
+import seedu.address.model.student.academic.question.Question;
+import seedu.address.model.student.academic.question.SolvedQuestion;
+import seedu.address.model.student.academic.question.UnsolvedQuestion;
 import seedu.address.model.student.admin.ClassTime;
 import seedu.address.model.student.admin.ClassVenue;
 import seedu.address.model.student.admin.Detail;
 import seedu.address.model.student.admin.Fee;
 import seedu.address.model.student.admin.PaymentDate;
-import seedu.address.model.student.question.Question;
-import seedu.address.model.student.question.SolvedQuestion;
-import seedu.address.model.student.question.UnsolvedQuestion;
 
 /**
  * Contains utility methods used for parsing strings in the various *Parser classes.
@@ -106,32 +110,7 @@ public class ParserUtil {
         if (!Year.isValidYear(trimmedYear)) {
             throw new ParseException(Year.MESSAGE_CONSTRAINTS);
         }
-        final Matcher matcher = Year.YEAR_FORMAT.matcher(year.trim());
-        boolean isMatched = matcher.matches();
-        assert isMatched;
-        String schoolTypeString = matcher.group("school").trim().toLowerCase();
-        String levelString = matcher.group("level").trim().toLowerCase();
-
-        SchoolType schoolType = parseSchoolType(schoolTypeString);
-        Integer level = Integer.parseInt(levelString);
-
-        return new Year(schoolType, level);
-    }
-
-    /**
-     * Parses a {@code String schoolType} into a {@code SchoolType}.
-     * Leading and trailing whitespaces will be trimmed.
-     *
-     * @throws ParseException if the given {@code schoolType} is invalid.
-     */
-    public static SchoolType parseSchoolType(String schoolType) throws ParseException {
-        requireNonNull(schoolType);
-        String trimmed = schoolType.trim().toLowerCase();
-        if (!SchoolType.isValidSchoolType(trimmed)) {
-            throw new ParseException(SchoolType.SCHOOL_TYPE_CONSTRANTS);
-        }
-        checkArgument(SchoolType.isValidSchoolType(trimmed), SchoolType.SCHOOL_TYPE_CONSTRANTS);
-        return SchoolType.LOOKUP_TABLE.get(trimmed);
+        return new Year(trimmedYear);
     }
 
     /**
@@ -221,46 +200,95 @@ public class ParserUtil {
     }
 
     /**
-     * Parses a {@code String detail} into a {@code AdditionalDetail}.
+     * Parses a {@code String detail} into a {@code Detail}.
      * Leading and trailing whitespaces will be trimmed.
      *
      * @throws ParseException if the given {@code detail} is invalid.
      */
-    public static Detail parseAdditionalDetail(String detail) throws ParseException {
+    public static Detail parseDetail(String detail) throws ParseException {
         requireNonNull(detail);
         String trimmedDetail = detail.trim();
-        if (!Detail.isValidAdditionalDetail(trimmedDetail)) {
+        if (!Detail.isValidDetail(trimmedDetail)) {
             throw new ParseException(Detail.MESSAGE_CONSTRAINTS);
         }
         return new Detail(trimmedDetail);
     }
 
     /**
-     * Parses {@code Collection<String> additionalDetails} into a {@code Set<Tag>}.
+     * Parses {@code Collection<String> details} into a {@code List<Detail>}.
      */
-    public static List<Detail> parseAdditionalDetails(Collection<String> additionalDetails)
+    public static List<Detail> parseDetails(Collection<String> details)
             throws ParseException {
-        requireNonNull(additionalDetails);
+        requireNonNull(details);
         final List<Detail> detailSet = new ArrayList<>();
-        for (String detail : additionalDetails) {
-            detailSet.add(parseAdditionalDetail(detail));
+        for (String detail : details) {
+            detailSet.add(parseDetail(detail));
         }
         return detailSet;
     }
 
     /**
-     * Parses a {@code String examDate} into a {@code Exam} formatted {@code String}.
+     * Parses a {@code String title} into a {@code Title}.
      * Leading and trailing whitespaces will be trimmed.
      *
-     * @throws ParseException if the given {@code examDate} is invalid.
+     * @throws ParseException if the given {@code title} is invalid.
      */
-    public static String parseExamDate(String examDate) throws ParseException {
-        requireNonNull(examDate);
-        String trimmedExamDate = examDate.trim();
-        if (!Exam.isValidDate(trimmedExamDate)) {
-            throw new ParseException(AddExamCommand.MESSAGE_EXAM_INVALID_DATE);
+    public static Title parseTitle(String title) throws ParseException {
+        requireNonNull(title);
+        String trimmedTitle = title.trim();
+        if (!Title.isValidTitle(trimmedTitle)) {
+            throw new ParseException(Title.MESSAGE_CONSTRAINTS);
         }
-        return trimmedExamDate;
+        return new Title(trimmedTitle);
+    }
+
+    /**
+     * Parses a {@code String description} into a {@code Description}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code description} is invalid.
+     */
+    public static Description parseDescription(String description) throws ParseException {
+        requireNonNull(description);
+        String trimmedDescription = description.trim();
+        if (!Description.isValidDescription(trimmedDescription)) {
+            throw new ParseException(Description.MESSAGE_CONSTRAINTS);
+        }
+        return new Description(trimmedDescription);
+    }
+
+    /**
+     * Parses {@code String input} into a {@code ScheduleViewMode}.
+     * Case of the input string is ignored.
+     *
+     * @throws ParseException if the given {@code string} is of a valid view mode.
+     */
+    public static ScheduleViewMode parseViewMode(String input) throws ParseException {
+
+        if (input.equalsIgnoreCase(ScheduleViewMode.DAILY.name())) {
+            return ScheduleViewMode.DAILY;
+        }
+
+        if (input.equalsIgnoreCase(ScheduleViewMode.WEEKLY.name())) {
+            return ScheduleViewMode.WEEKLY;
+        }
+        throw new ParseException(ScheduleViewCommand.MESSAGE_INVALID_VIEW_MODE);
+    }
+
+    /**
+     * Parses a {@code String dateToViewSchedule} into a {@code LocalDate}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException when input string does not follow the format
+     */
+    public static LocalDate parseViewDate(String dateToViewSchedule) throws ParseException {
+        requireNonNull(dateToViewSchedule);
+        try {
+            return parseDate(dateToViewSchedule);
+        } catch (ParseException e) {
+            throw new ParseException(ScheduleViewCommand.MESSAGE_CONSTRAINTS);
+        }
+
     }
 
     /**
@@ -272,8 +300,8 @@ public class ParserUtil {
     public static String parseExamName(String examName) throws ParseException {
         requireNonNull(examName);
         String trimmedExamName = examName.trim();
-        if (trimmedExamName.isEmpty()) {
-            throw new ParseException(AddExamCommand.MESSAGE_EXAM_INVALID_NAME);
+        if (!Exam.isValidExamName(trimmedExamName)) {
+            throw new ParseException(Exam.MESSAGE_CONSTRAINTS);
         }
         return trimmedExamName;
     }
@@ -291,6 +319,51 @@ public class ParserUtil {
             throw new ParseException(Score.MESSAGE_CONSTRAINTS);
         }
         return new Score(trimmedScore);
+    }
+
+    /**
+     * Parses a {@code String attendanceStatus} into a {@code boolean}.
+     * Leading and trailing whitespaces will be trimmed, and case is ignored.
+     *
+     * @throws ParseException if the given {@code attendanceStatus} is invalid.
+     */
+    public static boolean parseAttendanceStatus(String attendanceStatus) throws ParseException {
+        requireNonNull(attendanceStatus);
+        String formattedStatus = attendanceStatus.trim().toLowerCase();
+        if (!Attendance.isValidStatus(formattedStatus)) {
+            throw new ParseException(Attendance.STATUS_CONSTRAINTS);
+        }
+        return formattedStatus.equals(Attendance.PRESENT_STATUS);
+    }
+
+    /**
+     * Parses a {@code String score} into a {@code Feedback}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code feedback} is invalid.
+     */
+    public static Feedback parseFeedback(String feedback) throws ParseException {
+        requireNonNull(feedback);
+        String trimmedFeedback = feedback.trim();
+        if (!Feedback.isValidFeedback(trimmedFeedback)) {
+            throw new ParseException(Feedback.MESSAGE_CONSTRAINTS);
+        }
+        return new Feedback(trimmedFeedback);
+    }
+
+    /**
+     * Parses a {@code String date} into a {@code LocalDate}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code date} is not a valid date.
+     */
+    public static LocalDate parseDate(String date) throws ParseException {
+        requireNonNull(date);
+        String trimmedDate = date.trim();
+        if (!DateUtil.isValidDate(trimmedDate)) {
+            throw new ParseException(DateUtil.DATE_CONSTRAINTS);
+        }
+        return DateUtil.parseToDate(trimmedDate);
     }
 
 }

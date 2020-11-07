@@ -47,4 +47,20 @@ public class AdminTest {
         editedAliceAdmin = new StudentBuilder(ALICE).withDetails("nice", "schizophrenic").build().getAdmin();
         assertFalse(aliceAdmin.equals(editedAliceAdmin));
     }
+
+    @Test
+    public void hasClashingClassTime() {
+        // same class time -> clash
+        Admin admin = new StudentBuilder().build().getAdmin();
+        assertTrue(admin.hasClashingClassTime(admin));
+
+        // clashes -> return true
+        Admin test = new StudentBuilder().withClassTime("1 2000-2100").build().getAdmin();
+        assertFalse(admin.hasClashingClassTime(test));
+
+        // does not clash -> return false
+        test = new StudentBuilder().withClassTime("1 2130-2300").build().getAdmin();
+        assertTrue(admin.hasClashingClassTime(test));
+    }
+
 }

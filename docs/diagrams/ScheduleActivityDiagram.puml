@@ -1,9 +1,17 @@
 @startuml
-(*) --> "user calls schedule command with date"
-"user calls schedule command with date" --> "Parses date"
-"Parses date" --> "get the dayOfWeek"
-"get the dayOfWeek" --> "creates a Predicate<Student>"
-"creates a Predicate<Student>" --> "filter student list"
-"filter student list" --> "display result"
-"display result" --> (*)
+start
+:User executes ScheduleViewCommand;
+:Parses the command;
+if () then ([command is valid])
+    :ScheduleViewCommand executed;
+    : set the schedule view date;
+    : set the schedule view mode;
+    : get student data;
+    : translate student's class time to events;
+
+else ([command is invalid - missing or invalid arguments])
+    :Display parse error message;
+endif
+:Return result to user;
+stop
 @enduml

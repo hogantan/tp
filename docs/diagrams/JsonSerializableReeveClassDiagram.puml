@@ -1,0 +1,15 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor STORAGE_COLOR
+skinparam classBackgroundColor STORAGE_COLOR
+
+JsonSerializableReeve *-down-> "*" JsonAdaptedStudent
+JsonAdaptedStudent -down-> "1" JsonAdaptedAcademic
+JsonAdaptedStudent -right-> "1" JsonAdaptedAdmin
+JsonAdaptedAdmin -down-> "*" JsonAdaptedDetail
+JsonAdaptedAcademic -down-> "*" JsonAdaptedQuestion
+JsonAdaptedAcademic -down-> "*" JsonAdaptedExam
+JsonAdaptedAcademic -down-> "*" JsonAdaptedAttendance
+
+@enduml

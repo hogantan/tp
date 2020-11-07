@@ -87,6 +87,16 @@ public class ClassTime implements Comparable<ClassTime> {
     }
 
     /**
+     * Returns true if the two ClassTimes clash.
+     */
+    public boolean clashesWith(ClassTime other) {
+        if (!dayOfWeek.equals(other.dayOfWeek)) {
+            return false;
+        }
+        return endTime.isAfter(other.startTime) && startTime.isBefore(other.endTime);
+    }
+
+    /**
      * Converts a {@code classTime} object back to a user input string
      */
     public String convertClassTimeToUserInputString() {

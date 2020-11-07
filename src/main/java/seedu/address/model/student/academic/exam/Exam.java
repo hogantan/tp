@@ -1,17 +1,27 @@
 package seedu.address.model.student.academic.exam;
 
+import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
+import static seedu.address.commons.util.DateUtil.getInputFormat;
+import static seedu.address.commons.util.DateUtil.print;
+
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 /**
  * Represents an Exam in Reeve that can be assigned to a {@code Student}.
  */
 public class Exam {
-    private static final DateTimeFormatter INPUT_DEF = DateTimeFormatter.ofPattern("d/M/yy");
-    private static final DateTimeFormatter INPUT_ALT = DateTimeFormatter.ofPattern("d/M/yyyy");
-    private static final DateTimeFormatter OUTPUT = DateTimeFormatter.ofPattern("dd MMM yyyy");
+
+    public static final String MESSAGE_CONSTRAINTS = "Exam names can take any values, and "
+            + "should not be should not be blank.";
+
+    /*
+     * Exam names must have at least 1 alphabet with spaces in between allowed.
+     * First character cannot be empty string if not empty string becomes valid school.
+     */
+    public static final String VALIDATION_REGEX = "[^\\s].*";
+
     private final String examName;
     private final LocalDate examDate;
     private final Score score;
@@ -23,16 +33,17 @@ public class Exam {
      * @param examDate date of exam.
      * @param score score obtained.
      */
-    public Exam(String examName, String examDate, Score score) {
+    public Exam(String examName, LocalDate examDate, Score score) {
+        requireAllNonNull(examName, examDate, score);
+        checkArgument(isValidExamName(examName), MESSAGE_CONSTRAINTS);
+
         this.examName = examName;
-        LocalDate formattedDate;
-        try {
-            formattedDate = LocalDate.parse(examDate, INPUT_DEF);
-        } catch (DateTimeParseException ignored) {
-            formattedDate = LocalDate.parse(examDate, INPUT_ALT);
-        }
-        this.examDate = formattedDate;
+        this.examDate = examDate;
         this.score = score;
+    }
+
+    public static boolean isValidExamName(String test) {
+        return test.matches(VALIDATION_REGEX);
     }
 
     public String getName() {
@@ -48,29 +59,7 @@ public class Exam {
     }
 
     public String getUserInputDate() {
-        return this.examDate.format(INPUT_ALT);
-    }
-
-    /**
-     * Returns true if a given string is a valid date for {@code Exam}.
-     */
-    public static boolean isValidDate(String date) {
-        String validationRegex = "(\\d{1,2})(\\/)(\\d{1,2})(\\/)(\\d{2}|\\d{4})";
-        if (!date.matches(validationRegex)) {
-            return false;
-        }
-
-        LocalDate testDate = null;
-
-        for (DateTimeFormatter format : new DateTimeFormatter[] {INPUT_DEF, INPUT_ALT}) {
-            try {
-                testDate = LocalDate.parse(date, format);
-                break;
-            } catch (DateTimeParseException ignored) {
-                // does not match the DateTimeFormat, try the next
-            }
-        }
-        return testDate != null;
+        return getInputFormat(examDate);
     }
 
     @Override
@@ -94,7 +83,7 @@ public class Exam {
 
     @Override
     public String toString() {
-        return " " + examName + "\n\t- Date: " + examDate.format(OUTPUT) + "\n\t- Score: "
-                + score + " (" + score.getScorePercentage() + "%)";
+        return "- " + examName + "\n\t-> Date: " + print(examDate) + "\n\t-> Score: "
+                + score + " (" + score.getScorePercentage() + "%)\n";
     }
 }

@@ -3,9 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TEXT;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_STUDENTS;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +19,7 @@ public class AddDetailCommand extends DetailCommand {
 
     public static final String COMMAND_WORD = "add";
     public static final String MESSAGE_USAGE = DetailCommand.COMMAND_WORD + " " + COMMAND_WORD
-            + ": adds an Additional Detail to the student identified "
+            + ": adds a Detail to the student identified "
             + "by the index number used in the displayed student list. \n"
             + "Parameters: STUDENT_INDEX (must be a positive integer) "
             + PREFIX_TEXT + "DETAIL\n"
@@ -30,13 +28,13 @@ public class AddDetailCommand extends DetailCommand {
 
     public static final String MESSAGE_SUCCESS = "New detail added to %s: %s";
 
-    private static Logger logger = Logger.getLogger("Add Additional Detail Log");
+    private static Logger logger = Logger.getLogger("Add Detail Log");
 
     private final Index index;
     private final Detail detailToAdd;
 
     /**
-     * Creates an AddAdditionalDetailCommand to add the specified {@code AdditionalDetail} to the student
+     * Creates an AddDetailCommand to add the specified {@code Detail} to the student
      * at the specified {@code Index}.
      */
     public AddDetailCommand(Index index, Detail detailToAdd) {
@@ -58,7 +56,7 @@ public class AddDetailCommand extends DetailCommand {
         requireNonNull(model);
         logger.log(Level.INFO, "Beginning command execution");
 
-        List<Student> lastShownList = model.getFilteredStudentList();
+        List<Student> lastShownList = model.getSortedStudentList();
         if (index.getZeroBased() >= lastShownList.size()) {
             logger.log(Level.WARNING, "Invalid student index input error");
             throw new CommandException(Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
@@ -66,13 +64,12 @@ public class AddDetailCommand extends DetailCommand {
 
         Student studentToAddDetail = lastShownList.get(index.getZeroBased());
 
-        List<Detail> details = new ArrayList<>(studentToAddDetail.getDetails());
+        List<Detail> details = studentToAddDetail.getDetails();
         details.add(detailToAdd);
 
         Student updatedStudent = super.updateStudentDetail(studentToAddDetail, details);
 
         model.setStudent(studentToAddDetail, updatedStudent);
-        model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
         logger.log(Level.INFO, "Execution complete");
         return new CommandResult(String.format(MESSAGE_SUCCESS, updatedStudent.getName(), detailToAdd));
     }

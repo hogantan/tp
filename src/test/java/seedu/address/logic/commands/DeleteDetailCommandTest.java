@@ -13,6 +13,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalStudents.ALICE;
 import static seedu.address.testutil.TypicalStudents.BENSON;
 import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,13 +27,14 @@ import seedu.address.testutil.StudentBuilder;
 
 public class DeleteDetailCommandTest {
 
+    //@@author VaishakAnand
     private static final Index TEST_INDEX_FIRST_STUDENT = INDEX_FIRST_PERSON;
     private static final Index TEST_INDEX_SECOND_STUDENT = INDEX_SECOND_PERSON;
     private static final Index TEST_INDEX_FIRST_DETAIL = INDEX_FIRST_PERSON;
     private static final Index TEST_INDEX_SECOND_DETAIL = INDEX_SECOND_PERSON;
     private static final String TEST_DETAIL = "eats flies";
 
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
 
     @Test
     public void constructor_null_throwsNullPointerException() {
@@ -50,10 +52,10 @@ public class DeleteDetailCommandTest {
 
     @Test
     public void execute_validStudentIndexUnfilteredList_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withDetails(TEST_DETAIL).build();
         Detail detail = new Detail(TEST_DETAIL);
-        DeleteDetailCommand deleteAdditionalDetailCommand =
+        DeleteDetailCommand deleteDetailCommand =
                 new DeleteDetailCommand(TEST_INDEX_FIRST_STUDENT, TEST_INDEX_FIRST_DETAIL);
         Student expectedStudent = new StudentBuilder(ALICE).withDetails().build();
         model.setStudent(asker, clone);
@@ -61,15 +63,15 @@ public class DeleteDetailCommandTest {
         String expectedMessage = String.format(DeleteDetailCommand.MESSAGE_SUCCESS,
                 clone.getName(), detail);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expectedStudent);
 
-        assertCommandSuccess(deleteAdditionalDetailCommand, model, expectedMessage, expectedModel);
+        assertCommandSuccess(deleteDetailCommand, model, expectedMessage, expectedModel);
     }
 
     @Test
     public void execute_invalidStudentIndexUnfilteredList_throwsCommandException() {
-        Index outOfBoundsStudentIndex = Index.fromOneBased(model.getFilteredStudentList().size() + 1);
+        Index outOfBoundsStudentIndex = Index.fromOneBased(model.getSortedStudentList().size() + 1);
         DeleteDetailCommand command = new DeleteDetailCommand(outOfBoundsStudentIndex,
                 TEST_INDEX_FIRST_DETAIL);
         assertCommandFailure(command, model, MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
@@ -78,7 +80,7 @@ public class DeleteDetailCommandTest {
     @Test
     public void execute_invalidDetailIndexUnfilteredList_throwsCommandException() {
         Index outOfBoundsDetailIndex =
-                Index.fromOneBased(model.getFilteredStudentList().get(0).getDetails().size() + 1);
+                Index.fromOneBased(model.getSortedStudentList().get(0).getDetails().size() + 1);
         DeleteDetailCommand invalidCommand = new DeleteDetailCommand(TEST_INDEX_FIRST_STUDENT,
                 outOfBoundsDetailIndex);
 
@@ -89,7 +91,7 @@ public class DeleteDetailCommandTest {
     public void execute_validStudentIndexFilteredList_throwsCommandException() {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Detail detail = new Detail(TEST_DETAIL);
         Student clone = new StudentBuilder(asker).withDetails(TEST_DETAIL).build();
         model.setStudent(asker, clone);
@@ -101,8 +103,9 @@ public class DeleteDetailCommandTest {
         String expectedMessage = String.format(DeleteDetailCommand.MESSAGE_SUCCESS,
                 clone.getName(), detail);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), getTypicalNotebook());
         expectedModel.setStudent(clone, expectedStudent);
+        showPersonAtIndex(expectedModel, INDEX_SECOND_PERSON);
 
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
     }
@@ -123,7 +126,7 @@ public class DeleteDetailCommandTest {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
         Index outOfBoundsDetailIndex =
-                Index.fromOneBased(model.getFilteredStudentList().get(0).getDetails().size() + 1);
+                Index.fromOneBased(model.getSortedStudentList().get(0).getDetails().size() + 1);
         DeleteDetailCommand invalidCommand =
                 new DeleteDetailCommand(TEST_INDEX_FIRST_STUDENT, outOfBoundsDetailIndex);
 
@@ -132,27 +135,26 @@ public class DeleteDetailCommandTest {
 
     @Test
     public void equals() {
-        Detail testDetail = new Detail(TEST_DETAIL);
-        DeleteDetailCommand deleteAdditionalDetailCommand =
+        DeleteDetailCommand deleteDetailCommand =
                 new DeleteDetailCommand(INDEX_FIRST_PERSON, TEST_INDEX_FIRST_DETAIL);
 
         // same object -> return true;
-        assertTrue(deleteAdditionalDetailCommand.equals(deleteAdditionalDetailCommand));
+        assertTrue(deleteDetailCommand.equals(deleteDetailCommand));
 
         // different object -> return false;
-        assertFalse(deleteAdditionalDetailCommand.equals("hello"));
+        assertFalse(deleteDetailCommand.equals("hello"));
 
         // same fields -> return true;
-        assertTrue(deleteAdditionalDetailCommand.equals(new DeleteDetailCommand(INDEX_FIRST_PERSON,
+        assertTrue(deleteDetailCommand.equals(new DeleteDetailCommand(INDEX_FIRST_PERSON,
                 TEST_INDEX_FIRST_DETAIL)));
 
         // different student index -> return false;
-        assertFalse(deleteAdditionalDetailCommand.equals(new AddDetailCommand(INDEX_SECOND_PERSON,
-                testDetail)));
+        assertFalse(deleteDetailCommand.equals(new DeleteDetailCommand(INDEX_SECOND_PERSON,
+                TEST_INDEX_FIRST_DETAIL)));
 
         // different detail index -> return false;
         Detail altDetail = new Detail("he watches birds");
-        assertFalse(deleteAdditionalDetailCommand.equals(new DeleteDetailCommand(INDEX_FIRST_PERSON,
+        assertFalse(deleteDetailCommand.equals(new DeleteDetailCommand(INDEX_FIRST_PERSON,
                 TEST_INDEX_SECOND_DETAIL)));
     }
 }

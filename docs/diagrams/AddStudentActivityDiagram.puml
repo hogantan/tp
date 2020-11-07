@@ -7,8 +7,12 @@ if () then ([command is valid])
     if() then ([student already exists])
         :Display duplicate student error message;
     else ([student is unique])
+        if() then ([Student's class time clashes])
+        :Display class time clash error message;
+        else ([Student's class time does not clash])
         :Add student into student list;
         :Display add student success message;
+        endif
     endif
 else ([command is invalid - missing or invalid arguments])
     :Display parse error message;

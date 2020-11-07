@@ -19,7 +19,6 @@ import seedu.address.logic.commands.EditDetailCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.student.admin.Detail;
 
-
 public class DetailCommandParserTest {
 
     //@@author VaishakAnand

@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX;
+import static seedu.address.commons.util.DateUtil.parseToDate;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
@@ -12,6 +13,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalStudents.ALICE;
 import static seedu.address.testutil.TypicalStudents.BENSON;
 import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +31,9 @@ import seedu.address.testutil.StudentBuilder;
  * and unit tests for ExamCommand
  */
 public class AddExamCommandTest {
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-    private Exam dummyExam = new Exam("Mid Year 2020", "26/7/2020", new Score("26/50"));
+
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
+    private Exam dummyExam = new Exam("Mid Year 2020", parseToDate("26/7/2020"), new Score("26/50"));
 
     @Test
     public void constructors_null_throwsNullPointerException() {
@@ -56,7 +59,7 @@ public class AddExamCommandTest {
 
     @Test
     public void execute_validIndexUnfilteredList_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withExams().build();
         AddExamCommand addExamCommand =
                 new AddExamCommand(INDEX_FIRST_PERSON, dummyExam);
@@ -66,7 +69,7 @@ public class AddExamCommandTest {
         String expectedMessage = String.format(AddExamCommand.MESSAGE_EXAM_ADDED_SUCCESS, expectedStudent.getName(),
                 dummyExam);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), model.getNotebook());
         expectedModel.setStudent(clone, expectedStudent);
 
         assertCommandSuccess(addExamCommand, model, expectedMessage, expectedModel);
@@ -74,7 +77,7 @@ public class AddExamCommandTest {
 
     @Test
     public void execute_invalidIndexUnfilteredList_throwsCommandException() {
-        Index outOfBounds = Index.fromOneBased(model.getFilteredStudentList().size() + 1);
+        Index outOfBounds = Index.fromOneBased(model.getSortedStudentList().size() + 1);
         AddExamCommand command = new AddExamCommand(outOfBounds,
                 dummyExam);
 
@@ -85,7 +88,7 @@ public class AddExamCommandTest {
     public void execute_validIndexFilteredList_success() {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withExams().build();
         model.setStudent(asker, clone);
 
@@ -95,8 +98,9 @@ public class AddExamCommandTest {
         String expectedMessage = String.format(AddExamCommand.MESSAGE_EXAM_ADDED_SUCCESS,
                 expectedStudent.getName(), dummyExam);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), model.getNotebook());
         expectedModel.setStudent(clone, expectedStudent);
+        showPersonAtIndex(expectedModel, INDEX_SECOND_PERSON);
 
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
     }
@@ -129,7 +133,7 @@ public class AddExamCommandTest {
         assertNotEquals(addExamCommand, new AddExamCommand(INDEX_SECOND_PERSON, dummyExam));
 
         // different exam -> return false;
-        Exam altExam = new Exam("Alt Exam", "12/12/2020", new Score("1/1"));
+        Exam altExam = new Exam("Alt Exam", parseToDate("12/12/2020"), new Score("1/1"));
         assertNotEquals(addExamCommand, new AddExamCommand(INDEX_FIRST_PERSON, altExam));
     }
 }

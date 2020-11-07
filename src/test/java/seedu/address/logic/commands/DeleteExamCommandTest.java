@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static seedu.address.commons.core.Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX;
+import static seedu.address.commons.util.DateUtil.parseToDate;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
@@ -13,6 +14,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalStudents.ALICE;
 import static seedu.address.testutil.TypicalStudents.BENSON;
 import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +31,8 @@ public class DeleteExamCommandTest {
     private static final Index TEST_INDEX_FIRST_EXAM = INDEX_FIRST_PERSON;
     private static final Index TEST_INDEX_SECOND_EXAM = INDEX_SECOND_PERSON;
 
-    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-    private Exam dummyExam = new Exam("Mid Year 2020", "26/7/2020", new Score("26/50"));
+    private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
+    private Exam dummyExam = new Exam("Mid Year 2020", parseToDate("26/7/2020"), new Score("26/50"));
 
     @Test
     public void constructors_null_throwsNullPointerException() {
@@ -48,7 +50,7 @@ public class DeleteExamCommandTest {
 
     @Test
     public void execute_validStudentIndexUnfilteredList_success() {
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withExams(dummyExam).build();
         DeleteExamCommand deleteExamCommand =
                 new DeleteExamCommand(INDEX_FIRST_PERSON, TEST_INDEX_FIRST_EXAM);
@@ -58,7 +60,7 @@ public class DeleteExamCommandTest {
         String expectedMessage = String.format(DeleteExamCommand.MESSAGE_EXAM_DELETED_SUCCESS,
                 expectedStudent.getName(), dummyExam);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), model.getNotebook());
         expectedModel.setStudent(clone, expectedStudent);
 
         assertCommandSuccess(deleteExamCommand, model, expectedMessage, expectedModel);
@@ -66,7 +68,7 @@ public class DeleteExamCommandTest {
 
     @Test
     public void execute_invalidStudentIndexUnfilteredList_throwsCommandException() {
-        Index outOfBoundsStudentIndex = Index.fromOneBased(model.getFilteredStudentList().size() + 1);
+        Index outOfBoundsStudentIndex = Index.fromOneBased(model.getSortedStudentList().size() + 1);
         DeleteExamCommand command = new DeleteExamCommand(outOfBoundsStudentIndex,
                 TEST_INDEX_FIRST_EXAM);
         assertCommandFailure(command, model, MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
@@ -74,7 +76,7 @@ public class DeleteExamCommandTest {
 
     @Test
     public void execute_invalidExamIndexUnfilteredList_throwsCommandException() {
-        Index outOfBoundsExamIndex = Index.fromOneBased(model.getFilteredStudentList().get(0).getExams().size() + 1);
+        Index outOfBoundsExamIndex = Index.fromOneBased(model.getSortedStudentList().get(0).getExams().size() + 1);
         DeleteExamCommand invalidCommand = new DeleteExamCommand(INDEX_FIRST_PERSON,
                 outOfBoundsExamIndex);
 
@@ -85,7 +87,7 @@ public class DeleteExamCommandTest {
     public void execute_validStudentIndexFilteredList_success() {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
-        Student asker = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Student asker = model.getSortedStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student clone = new StudentBuilder(asker).withExams(dummyExam).build();
         model.setStudent(asker, clone);
 
@@ -96,8 +98,9 @@ public class DeleteExamCommandTest {
         String expectedMessage = String.format(DeleteExamCommand.MESSAGE_EXAM_DELETED_SUCCESS,
                 clone.getName(), dummyExam);
 
-        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs());
+        ModelManager expectedModel = new ModelManager(model.getReeve(), new UserPrefs(), model.getNotebook());
         expectedModel.setStudent(clone, expectedStudent);
+        showPersonAtIndex(expectedModel, INDEX_SECOND_PERSON);
 
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
     }
@@ -117,7 +120,7 @@ public class DeleteExamCommandTest {
     public void execute_invalidExamIndexFilteredList_throwsCommandException() {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
-        Index outOfBoundsExamIndex = Index.fromOneBased(model.getFilteredStudentList().get(0).getExams().size() + 1);
+        Index outOfBoundsExamIndex = Index.fromOneBased(model.getSortedStudentList().get(0).getExams().size() + 1);
         DeleteExamCommand invalidCommand = new DeleteExamCommand(TEST_INDEX_FIRST_EXAM,
                 outOfBoundsExamIndex);
 

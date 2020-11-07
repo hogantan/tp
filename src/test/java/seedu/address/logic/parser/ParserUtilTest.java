@@ -2,30 +2,34 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static seedu.address.commons.util.DateUtil.parseToDate;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.notes.note.Description;
+import seedu.address.model.notes.note.Title;
 import seedu.address.model.student.Name;
 import seedu.address.model.student.Phone;
 import seedu.address.model.student.School;
-import seedu.address.model.student.SchoolType;
 import seedu.address.model.student.Year;
+import seedu.address.model.student.academic.Feedback;
 import seedu.address.model.student.academic.exam.Score;
+import seedu.address.model.student.academic.question.Question;
+import seedu.address.model.student.academic.question.SolvedQuestion;
+import seedu.address.model.student.academic.question.UnsolvedQuestion;
 import seedu.address.model.student.admin.ClassTime;
 import seedu.address.model.student.admin.ClassVenue;
 import seedu.address.model.student.admin.Detail;
 import seedu.address.model.student.admin.Fee;
 import seedu.address.model.student.admin.PaymentDate;
-import seedu.address.model.student.question.Question;
-import seedu.address.model.student.question.SolvedQuestion;
-import seedu.address.model.student.question.UnsolvedQuestion;
 
 public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
@@ -40,17 +44,23 @@ public class ParserUtilTest {
     private static final String INVALID_QUESTION = "";
     private static final String INVALID_SOLUTION = " ";
     private static final String INVALID_EXAM_NAME = " ";
-    private static final String INVALID_EXAM_DATE_FORMAT = "23-9-2019";
-    private static final String INVALID_EXAM_DATE_ALPHABETS = "abcdef";
     private static final String INVALID_SCORE_LARGER = "100/50";
     private static final String INVALID_SCORE_NEGATIVE = "-50/-100";
+    private static final String INVALID_ATTENDANCE_STATUS = "you wot m8";
+    private static final String INVALID_DATE_ALPHABETS = "abcdef";
+    private static final String INVALID_DATE_FORMAT = "23-9-2019";
+    private static final String INVALID_FEEDBACK = " ";
+    private static final String INVALID_TITLE = "What is the meaning of life?";
+    private static final String INVALID_DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur"
+            + " adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna ali"
+            + "qua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
+            + "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in volupt"
+            + "ate velit esse cillum dolore eu fugiat nulla pariatur.";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "123456";
     private static final String VALID_SCHOOL = "Raffles Institution";
     private static final String VALID_YEAR = "JC 2";
-    private static final SchoolType VALID_SCHOOL_TYPE = SchoolType.JC;
-    private static final Integer VALID_SCHOOL_LEVEL = 2;
     private static final String VALID_CLASS_VENUE = "Blk 411 #04-11, Lorong Chuan, Singapore 234332";
     private static final String VALID_CLASS_TIME = "3 1240-1530";
     private static final String VALID_FEE = "2350.30";
@@ -60,9 +70,12 @@ public class ParserUtilTest {
     private static final String VALID_QUESTION = "Why can't humans fly?";
     private static final String VALID_SOLUTION = "Read your textbook.";
     private static final String VALID_EXAM_NAME = "Mid Year 2020";
-    private static final String VALID_EXAM_DATE = "23/9/2019";
+    private static final String VALID_DATE = "23/9/2019";
     private static final String VALID_SCORE = "50/100";
-
+    private static final String VALID_ATTENDANCE_STATUS = "present";
+    private static final String VALID_FEEDBACK = "attentive";
+    private static final String VALID_TITLE = "meaning of life";
+    private static final String VALID_DESCRIPTION = "Lorem ipsum dolor";
     private static final String WHITESPACE = " \t\r\n";
 
     @Test
@@ -166,7 +179,7 @@ public class ParserUtilTest {
 
     @Test
     public void parseYear_validYear_returnsYear() throws Exception {
-        Year expectedYear = new Year(VALID_SCHOOL_TYPE, VALID_SCHOOL_LEVEL);
+        Year expectedYear = new Year(VALID_YEAR);
         assertEquals(expectedYear, ParserUtil.parseYear(VALID_YEAR));
         assertEquals(expectedYear, ParserUtil.parseYear("J2")); // no whitespace
         assertEquals(expectedYear, ParserUtil.parseYear("J2               ")); // lots of trailing whitespace
@@ -180,24 +193,8 @@ public class ParserUtilTest {
     @Test
     public void parseYear_validYearWithWhiteSpace_returnsTrimmedYear() throws Exception {
         String yearWithWhiteSpace = WHITESPACE + VALID_YEAR + WHITESPACE;
-        Year expectedYear = new Year(VALID_SCHOOL_TYPE, VALID_SCHOOL_LEVEL);
+        Year expectedYear = new Year(VALID_YEAR);
         assertEquals(expectedYear, ParserUtil.parseYear(yearWithWhiteSpace));
-    }
-
-    @Test
-    public void parseSchoolType_validSchoolType_returnsCorrectSchoolType() throws ParseException {
-        assertEquals(SchoolType.PRIMARY, ParserUtil.parseSchoolType("Primary")); // full word first letter capitalised
-        assertEquals(SchoolType.PRIMARY, ParserUtil.parseSchoolType("primary")); // full word all lower case
-        assertEquals(SchoolType.SECONDARY, ParserUtil.parseSchoolType("s")); // one letter not capitalised
-        assertEquals(SchoolType.SECONDARY, ParserUtil.parseSchoolType("S")); // one letter capitalised
-        assertEquals(SchoolType.SECONDARY, ParserUtil.parseSchoolType("  Sec   ")); // lots of whitespace
-    }
-
-    @Test
-    public void parseSchoolType_invalidSchoolType_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parseSchoolType("pri  mary")); // mangled school type
-        assertThrows(ParseException.class, () -> ParserUtil.parseSchoolType("ns")); // not valid school type
-        assertThrows(ParseException.class, () -> ParserUtil.parseSchoolType("yramirp")); // reverse spelling
     }
 
     @Test
@@ -293,50 +290,50 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseAdditionalDetail_null_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> ParserUtil.parseAdditionalDetail(null));
+    public void parseDetail_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseDetail(null));
     }
 
     @Test
-    public void parseAdditionalDetail_invalidValue_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parseAdditionalDetail(INVALID_ADDITIONAL_DETAIL));
+    public void parseDetail_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseDetail(INVALID_ADDITIONAL_DETAIL));
     }
 
     @Test
-    public void parseAdditionalDetail_validValue_returnsAdditionalDetail() throws Exception {
+    public void parseDetail_validValue_returnsDetail() throws Exception {
         Detail expectedDetail = new Detail(VALID_ADDITIONAL_DETAIL_WEEB);
-        assertEquals(expectedDetail, ParserUtil.parseAdditionalDetail(VALID_ADDITIONAL_DETAIL_WEEB));
+        assertEquals(expectedDetail, ParserUtil.parseDetail(VALID_ADDITIONAL_DETAIL_WEEB));
     }
 
     @Test
-    public void parseAdditionalDetail_validValueWithWhiteSpace_returnsTrimmedDetail() throws Exception {
+    public void parseDetail_validValueWithWhiteSpace_returnsTrimmedDetail() throws Exception {
         String detailWithWhiteSpace = WHITESPACE + VALID_ADDITIONAL_DETAIL_WEEB + WHITESPACE;
         Detail expectedDetail = new Detail(VALID_ADDITIONAL_DETAIL_WEEB);
-        assertEquals(expectedDetail, ParserUtil.parseAdditionalDetail(detailWithWhiteSpace));
+        assertEquals(expectedDetail, ParserUtil.parseDetail(detailWithWhiteSpace));
     }
 
     @Test
-    public void parseAdditionalDetails_null_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> ParserUtil.parseAdditionalDetails(null));
+    public void parseDetails_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseDetails(null));
     }
 
     @Test
-    public void parseAdditionalDetails_invalidDetail_throwsParseException() {
+    public void parseDetails_invalidDetail_throwsParseException() {
         List<String> invalidSet = List.of(INVALID_ADDITIONAL_DETAIL);
-        assertThrows(ParseException.class, () -> ParserUtil.parseAdditionalDetails(invalidSet));
+        assertThrows(ParseException.class, () -> ParserUtil.parseDetails(invalidSet));
     }
 
     @Test
-    public void parseAdditionalDetails_validDetails_returnsDetails() throws Exception {
+    public void parseDetails_validDetails_returnsDetails() throws Exception {
         List<String> validList = List.of(VALID_ADDITIONAL_DETAIL_CONVICT, VALID_ADDITIONAL_DETAIL_WEEB);
         List<Detail> expectedSet = validList.stream()
                 .map(Detail::new)
                 .collect(Collectors.toList());
-        assertEquals(expectedSet, ParserUtil.parseAdditionalDetails(validList));
+        assertEquals(expectedSet, ParserUtil.parseDetails(validList));
     }
 
     @Test
-    public void parseAdditionalDetails_validDetailsSpace_returnsTrimmedDetails() throws Exception {
+    public void parseDetails_validDetailsSpace_returnsTrimmedDetails() throws Exception {
         List<String> baseList = List.of(VALID_ADDITIONAL_DETAIL_CONVICT, VALID_ADDITIONAL_DETAIL_WEEB);
         List<String> validList = baseList.stream()
                 .map(string -> WHITESPACE + string + WHITESPACE)
@@ -344,7 +341,7 @@ public class ParserUtilTest {
         List<Detail> expectedSet = baseList.stream()
                 .map(Detail::new)
                 .collect(Collectors.toList());
-        assertEquals(expectedSet, ParserUtil.parseAdditionalDetails(validList));
+        assertEquals(expectedSet, ParserUtil.parseDetails(validList));
     }
 
     @Test
@@ -376,6 +373,7 @@ public class ParserUtilTest {
         assertNotEquals(unexpectedQuestion, ParserUtil.parseQuestion(VALID_QUESTION));
     }
 
+    @Test
     public void parseSolution_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parseSolution(null));
     }
@@ -418,32 +416,6 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseExamDate_null_throwNullPointerException() {
-        assertThrows(NullPointerException.class, () -> ParserUtil.parseExamDate(null));
-    }
-
-    @Test
-    public void parseExamDate_invalidDateWrongFormat_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parseExamDate(INVALID_EXAM_DATE_FORMAT));
-    }
-
-    @Test
-    public void parseExamDate_invalidDateAlphabets_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parseExamDate(INVALID_EXAM_DATE_ALPHABETS));
-    }
-
-    @Test
-    public void parseExamDate_validDateWithoutWhiteSpace_returnsExamDateString() throws Exception {
-        assertEquals(VALID_EXAM_DATE, ParserUtil.parseExamDate(VALID_EXAM_DATE));
-    }
-
-    @Test
-    public void parseExamDate_validDateWithWhiteSpace_returnsTrimmedExamDateString() throws Exception {
-        String examDateWithWhiteSpace = WHITESPACE + VALID_EXAM_DATE + WHITESPACE;
-        assertEquals(VALID_EXAM_DATE, ParserUtil.parseExamDate(examDateWithWhiteSpace));
-    }
-
-    @Test
     public void parseScore_null_throwNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parseScore(null));
     }
@@ -470,4 +442,98 @@ public class ParserUtilTest {
         Score expectedScore = new Score(VALID_SCORE);
         assertEquals(expectedScore, ParserUtil.parseScore(scoreWithWhiteSpace));
     }
+
+    @Test
+    public void parseAttendanceStatus_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseAttendanceStatus(null));
+    }
+
+    @Test
+    public void parseAttendanceStatus_invalidStatus_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseAttendanceStatus(INVALID_ATTENDANCE_STATUS));
+    }
+
+    @Test
+    public void parseAttendanceStatus_validStatusWithoutWhiteSpace_returnsStatusString() throws Exception {
+        assertEquals(true, ParserUtil.parseAttendanceStatus(VALID_ATTENDANCE_STATUS));
+    }
+
+    @Test
+    public void parseAttendanceStatus_validStatusWithWhiteSpace_returnsStatusString() throws Exception {
+        String statusWithWhiteSpace = WHITESPACE + VALID_ATTENDANCE_STATUS + WHITESPACE;
+        assertEquals(true, ParserUtil.parseAttendanceStatus(statusWithWhiteSpace));
+    }
+
+    @Test
+    public void parseFeedback_invalidStatus_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseFeedback(INVALID_FEEDBACK));
+    }
+
+    @Test
+    public void parseFeedback_validStatusWithoutWhiteSpace_returnsFeedbackString() throws Exception {
+        assertEquals(new Feedback(VALID_FEEDBACK), ParserUtil.parseFeedback(VALID_FEEDBACK));
+    }
+
+    @Test
+    public void parseFeedback_validStatusWithWhiteSpace_returnsFeedbackString() throws Exception {
+        String statusWithWhiteSpace = WHITESPACE + VALID_FEEDBACK + WHITESPACE;
+        assertEquals(new Feedback(VALID_FEEDBACK), ParserUtil.parseFeedback(statusWithWhiteSpace));
+    }
+
+    @Test
+    public void parseTitle_invalidTitle_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseTitle(INVALID_TITLE));
+    }
+
+    @Test
+    public void parseTitle_validTitleWithoutWhiteSpace_returnsTitleString() throws Exception {
+        assertEquals(new Title(VALID_TITLE), ParserUtil.parseTitle(VALID_TITLE));
+    }
+
+    @Test
+    public void parseTitle_validTitleWithWhiteSpace_returnsTitleString() throws Exception {
+        String titleWithWhiteSpace = WHITESPACE + VALID_TITLE + WHITESPACE;
+        assertEquals(new Title(VALID_TITLE), ParserUtil.parseTitle(titleWithWhiteSpace));
+    }
+
+    @Test
+    public void parseDescription_invalidDescription_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseDescription(INVALID_DESCRIPTION));
+    }
+
+    @Test
+    public void parseDescription_validDescriptionWithoutWhiteSpace_returnsDescriptionString() throws Exception {
+        assertEquals(new Description(VALID_DESCRIPTION), ParserUtil.parseDescription(VALID_DESCRIPTION));
+    }
+
+    @Test
+    public void parseDescription_validDescriptionWithWhiteSpace_returnsDescriptionString() throws Exception {
+        String descriptionWithWhiteSpace = WHITESPACE + VALID_DESCRIPTION + WHITESPACE;
+        assertEquals(new Description(VALID_DESCRIPTION), ParserUtil.parseDescription(descriptionWithWhiteSpace));
+    }
+
+    @Test
+    public void parseDate_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseDate(null));
+    }
+
+    @Test
+    public void parseDate_invalidDate_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseDate(INVALID_DATE_ALPHABETS));
+        assertThrows(ParseException.class, () -> ParserUtil.parseDate(INVALID_DATE_FORMAT));
+    }
+
+    @Test
+    public void parseDate_validDate_returnsDate() throws Exception {
+        LocalDate expected = parseToDate(VALID_DATE);
+        assertEquals(expected, ParserUtil.parseDate(VALID_DATE));
+    }
+
+    @Test
+    public void parseDate_validDateWithWhiteSpace_returnsTrimmedDate() throws Exception {
+        String dateWithWhiteSpace = WHITESPACE + VALID_DATE + WHITESPACE;
+        LocalDate expected = parseToDate(VALID_DATE);
+        assertEquals(expected, ParserUtil.parseDate(dateWithWhiteSpace));
+    }
+
 }

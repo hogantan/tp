@@ -94,6 +94,13 @@ public class Reeve implements ReadOnlyReeve {
         students.remove(key);
     }
 
+    /**
+     * Returns true if the given student clashes with another student's lesson time.
+     */
+    public boolean hasClashingClassTimeWith(Student test) {
+        return students.hasClashingClassTimeWith(test);
+    }
+
     //// util methods
 
     @Override

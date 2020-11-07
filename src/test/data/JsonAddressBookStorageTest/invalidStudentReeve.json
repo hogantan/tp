@@ -9,12 +9,24 @@
       "classTime": "3 1512-1722",
       "fee": "21.03",
       "paymentDate": "21/03/2020",
-      "additionalDetails": ["Just update if you going use for test:)"]
+      "details": ["Just update if you going use for test:)"]
     },
-    "questions": [{
-      "status" : true,
-      "question" : "",
-      "solution" : " "
-    }]
+    "academic": {
+      "questions": [{
+        "status" : "solved",
+        "question" : "How do birds fly?",
+        "solution" : "They don't"
+      }],
+      "attendanceList" : [{
+        "date" : "23-9-2019",
+        "attendanceStatus" : "present",
+        "feedback" : ""
+      }],
+      "exams" : [ {
+        "examName" : "End of Year",
+        "examDate" : "23/9/2019",
+        "score" : "10/50"
+      }]
+    }
   } ]
 }

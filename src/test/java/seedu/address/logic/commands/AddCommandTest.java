@@ -1,26 +1,26 @@
 package seedu.address.logic.commands;
 
-import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
+import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalStudents.AMY;
+import static seedu.address.testutil.TypicalStudents.getTypicalAddressBook;
+import static seedu.address.testutil.notes.TypicalNotes.getTypicalNotebook;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
-import javafx.collections.ObservableList;
-import seedu.address.commons.core.GuiSettings;
+import seedu.address.commons.core.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
-import seedu.address.model.ReadOnlyReeve;
-import seedu.address.model.ReadOnlyUserPrefs;
-import seedu.address.model.Reeve;
+import seedu.address.model.ModelManager;
+import seedu.address.model.ModelStub;
+import seedu.address.model.ModelStubAcceptingStudentAdded;
+import seedu.address.model.ModelStubWithStudent;
+import seedu.address.model.UserPrefs;
 import seedu.address.model.student.Student;
 import seedu.address.testutil.StudentBuilder;
 
@@ -52,6 +52,18 @@ public class AddCommandTest {
     }
 
     @Test
+    public void execute_clashingClassTime_throwsCommandException() {
+        Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs(), getTypicalNotebook());
+        String clashTime = model.getSortedStudentList()
+                .get(INDEX_FIRST_PERSON.getZeroBased())
+                .getClassTime()
+                .convertClassTimeToUserInputString();
+        Student clashingStudent = new StudentBuilder(AMY).withClassTime(clashTime).build();
+        AddCommand command = new AddCommand(clashingStudent);
+        assertThrows(CommandException.class, Messages.MESSAGE_CLASHING_LESSON, () -> command.execute(model));
+    }
+
+    @Test
     public void equals() {
         Student alice = new StudentBuilder().withName("Alice").build();
         Student bob = new StudentBuilder().withName("Bob").build();
@@ -73,133 +85,6 @@ public class AddCommandTest {
 
         // different person -> returns false
         assertFalse(addAliceCommand.equals(addBobCommand));
-    }
-
-    /**
-     * A default model stub that have all of the methods failing.
-     */
-    private class ModelStub implements Model {
-        @Override
-        public void setUserPrefs(ReadOnlyUserPrefs userPrefs) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public ReadOnlyUserPrefs getUserPrefs() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public GuiSettings getGuiSettings() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void setGuiSettings(GuiSettings guiSettings) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public Path getAddressBookFilePath() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void setAddressBookFilePath(Path addressBookFilePath) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void addStudent(Student student) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void setReeve(ReadOnlyReeve newData) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public ReadOnlyReeve getReeve() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public boolean hasStudent(Student student) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void deleteStudent(Student target) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void setStudent(Student target, Student editedStudent) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public ObservableList<Student> getFilteredStudentList() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void updateFilteredStudentList(Predicate<Student> predicate) {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public ObservableList<Student> getSortedStudentList() {
-            throw new AssertionError("This method should not be called.");
-        }
-
-        @Override
-        public void updateSortedStudentList(Comparator<? super Student> predicate) {
-            throw new AssertionError("This method should not be called.");
-        }
-    }
-
-    /**
-     * A Model stub that contains a single person.
-     */
-    private class ModelStubWithStudent extends ModelStub {
-        private final Student student;
-
-        ModelStubWithStudent(Student student) {
-            requireNonNull(student);
-            this.student = student;
-        }
-
-        @Override
-        public boolean hasStudent(Student student) {
-            requireNonNull(student);
-            return this.student.isSameStudent(student);
-        }
-    }
-
-    /**
-     * A Model stub that always accept the person being added.
-     */
-    private class ModelStubAcceptingStudentAdded extends ModelStub {
-        final ArrayList<Student> personsAdded = new ArrayList<>();
-
-        @Override
-        public boolean hasStudent(Student student) {
-            requireNonNull(student);
-            return personsAdded.stream().anyMatch(student::isSameStudent);
-        }
-
-        @Override
-        public void addStudent(Student student) {
-            requireNonNull(student);
-            personsAdded.add(student);
-        }
-
-        @Override
-        public ReadOnlyReeve getReeve() {
-            return new Reeve();
-        }
     }
 
 }

@@ -5,7 +5,6 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EXAM_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EXAM_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCORE;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_STUDENTS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class AddExamCommand extends ExamCommand {
 
     public static final String MESSAGE_USAGE = ExamCommand.COMMAND_WORD + " " + COMMAND_WORD
             + ": Adds an exam to a student.\n\n"
-            + "Parameters: INDEX (must be a positive integer)"
+            + "Parameters: INDEX (must be a positive integer) "
             + PREFIX_EXAM_NAME + "EXAM_NAME "
             + PREFIX_EXAM_DATE + "EXAM_DATE "
             + PREFIX_SCORE + "SCORE \n\n"
@@ -39,10 +38,6 @@ public class AddExamCommand extends ExamCommand {
 
     public static final String MESSAGE_EXAM_ADDED_SUCCESS = "New exam added to %1$s: %2$s";
     public static final String MESSAGE_DUPLICATE_EXAM = "%1$s already exists under %2$s";
-    public static final String MESSAGE_EXAM_INVALID_NAME = "Exam names should be should only contain "
-            + "alphanumeric characters and spaces, and it should not be blank";
-    public static final String MESSAGE_EXAM_INVALID_DATE = "Exam dates should be in the form dd/mm/yy, "
-            + "and should not be blank";
 
     private final Index index;
     private final Exam toAdd;
@@ -60,7 +55,7 @@ public class AddExamCommand extends ExamCommand {
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        List<Student> lastShownList = model.getFilteredStudentList();
+        List<Student> lastShownList = model.getSortedStudentList();
 
         if (index.getZeroBased() >= lastShownList.size()) {
             throw new CommandException(Messages.MESSAGE_INVALID_STUDENT_DISPLAYED_INDEX);
@@ -77,9 +72,8 @@ public class AddExamCommand extends ExamCommand {
         exams.add(toAdd);
         Student updatedStudent = new Student(selectedStudent.getName(), selectedStudent.getPhone(),
                 selectedStudent.getSchool(), selectedStudent.getYear(), selectedStudent.getAdmin(),
-                selectedStudent.getQuestions(), exams);
+                selectedStudent.getQuestions(), exams, selectedStudent.getAttendance());
         model.setStudent(selectedStudent, updatedStudent);
-        model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
         return new CommandResult(String.format(MESSAGE_EXAM_ADDED_SUCCESS, updatedStudent.getName(), toAdd));
     }
 

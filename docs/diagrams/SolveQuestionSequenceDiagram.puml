@@ -10,14 +10,13 @@ end box
 
 box Model MODEL_COLOR_T1
 participant ":Model" as Model MODEL_COLOR
-participant "q:SolvedQuestion" as Question MODEL_COLOR
 participant "student:Student" as Student MODEL_COLOR
 end box
 
-[-> LogicManager : execute("question solve 1 i/1 s/solution")
+[-> LogicManager : execute(...)
 activate LogicManager
 
-LogicManager -> ReeveParser : parseCommand("question solve 1 i/1 s/solution")
+LogicManager -> ReeveParser : parseCommand(...)
 activate ReeveParser
 
 create QuestionCommandParser
@@ -27,7 +26,7 @@ activate QuestionCommandParser
 QuestionCommandParser --> ReeveParser
 deactivate QuestionCommandParser
 
-ReeveParser -> QuestionCommandParser : parse("solve 1 i/1 s/solution")
+ReeveParser -> QuestionCommandParser : parse(...)
 activate QuestionCommandParser
 
 create SolveQuestionCommand
@@ -48,19 +47,6 @@ deactivate ReeveParser
 
 LogicManager -> SolveQuestionCommand : execute()
 activate SolveQuestionCommand
-
-SolveQuestionCommand -> Model : getStudent(1)
-activate Model
-
-Model --> SolveQuestionCommand : student
-deactivate Model
-
-create Question
-SolveQuestionCommand -> Question
-activate Question
-
-Question --> SolveQuestionCommand : q
-deactivate Question
 
 SolveQuestionCommand -> Student : setQuestion(q)
 activate Student

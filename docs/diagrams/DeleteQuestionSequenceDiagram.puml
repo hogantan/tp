@@ -13,10 +13,10 @@ participant ":Model" as Model MODEL_COLOR
 participant "student:Student" as Student MODEL_COLOR
 end box
 
-[-> LogicManager : execute("question delete 1 i/1")
+[-> LogicManager : execute(...)
 activate LogicManager
 
-LogicManager -> ReeveParser : parseCommand("question delete 1 i/1")
+LogicManager -> ReeveParser : parseCommand(...)
 activate ReeveParser
 
 create QuestionCommandParser
@@ -26,7 +26,7 @@ activate QuestionCommandParser
 QuestionCommandParser --> ReeveParser
 deactivate QuestionCommandParser
 
-ReeveParser -> QuestionCommandParser : parse("delete 1 i/1")
+ReeveParser -> QuestionCommandParser : parse(...)
 activate QuestionCommandParser
 
 create DeleteQuestionCommand
@@ -48,13 +48,7 @@ deactivate ReeveParser
 LogicManager -> DeleteQuestionCommand : execute()
 activate DeleteQuestionCommand
 
-DeleteQuestionCommand -> Model : getStudent(1)
-activate Model
-
-Model --> DeleteQuestionCommand : student
-deactivate Model
-
-DeleteQuestionCommand -> Student : deleteQuestion(1)
+DeleteQuestionCommand -> Student : deleteQuestion(...)
 activate Student
 
 Student --> DeleteQuestionCommand : copy
